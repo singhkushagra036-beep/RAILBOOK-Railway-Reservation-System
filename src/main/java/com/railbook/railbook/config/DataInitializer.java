@@ -111,7 +111,13 @@ public class DataInitializer implements CommandLineRunner {
                 {"KOTA", "Kota Junction", "Kota", "Rajasthan"},
                 {"BRC", "Vadodara Junction", "Vadodara", "Gujarat"},
                 {"ST", "Surat", "Surat", "Gujarat"},
-                {"KPD", "Katpadi Junction", "Katpadi", "Tamil Nadu"}
+                {"KPD", "Katpadi Junction", "Katpadi", "Tamil Nadu"},
+                {"DDU", "Pt. Deen Dayal Upadhyaya Junction", "Mughalsarai", "Uttar Pradesh"},
+                {"DHN", "Dhanbad Junction", "Dhanbad", "Jharkhand"},
+                {"ASN", "Asansol Junction", "Asansol", "West Bengal"},
+                {"AWR", "Alwar Junction", "Alwar", "Rajasthan"},
+                {"GGN", "Gurgaon", "Gurugram", "Haryana"},
+                {"DEC", "Delhi Cantt", "New Delhi", "Delhi"}
         };
 
         for (String[] data : stationData) {
@@ -338,6 +344,44 @@ public class DataInitializer implements CommandLineRunner {
             addStop(train, 1, stations.get("MAS"), null, LocalTime.of(17, 30), 0, 1);
             addStop(train, 2, stations.get("KPD"), LocalTime.of(19, 8), LocalTime.of(19, 10), 130, 1);
             addStop(train, 3, stations.get("SBC"), LocalTime.of(22, 30), null, 359, 1);
+        });
+
+        // 9. NDLS -> HWH Howrah Rajdhani Express (12302)
+        trainRepository.findByTrainNumber("12302").ifPresent(train -> {
+            addStop(train, 1, stations.get("NDLS"), null, LocalTime.of(16, 50), 0, 1);
+            addStop(train, 2, stations.get("CNB"), LocalTime.of(21, 32), LocalTime.of(21, 37), 440, 1);
+            addStop(train, 3, stations.get("PRYJ"), LocalTime.of(23, 43), LocalTime.of(23, 45), 635, 1);
+            addStop(train, 4, stations.get("DDU"), LocalTime.of(1, 37), LocalTime.of(1, 47), 786, 2);
+            addStop(train, 5, stations.get("DHN"), LocalTime.of(5, 28), LocalTime.of(5, 33), 1196, 2);
+            addStop(train, 6, stations.get("ASN"), LocalTime.of(6, 18), LocalTime.of(6, 20), 1255, 2);
+            addStop(train, 7, stations.get("HWH"), LocalTime.of(9, 55), null, 1451, 2);
+        });
+
+        // 10. JP -> NDLS Double Decker Express (12985)
+        trainRepository.findByTrainNumber("12985").ifPresent(train -> {
+            addStop(train, 1, stations.get("JP"), null, LocalTime.of(6, 0), 0, 1);
+            addStop(train, 2, stations.get("AWR"), LocalTime.of(7, 42), LocalTime.of(7, 45), 151, 1);
+            addStop(train, 3, stations.get("GGN"), LocalTime.of(9, 36), LocalTime.of(9, 38), 273, 1);
+            addStop(train, 4, stations.get("DEC"), LocalTime.of(9, 53), LocalTime.of(9, 55), 290, 1);
+            addStop(train, 5, stations.get("NDLS"), LocalTime.of(10, 25), null, 304, 1);
+        });
+
+        // 11. PNBE -> NDLS Sampoorna Kranti Superfast Express (12393)
+        trainRepository.findByTrainNumber("12393").ifPresent(train -> {
+            addStop(train, 1, stations.get("PNBE"), null, LocalTime.of(19, 25), 0, 1);
+            addStop(train, 2, stations.get("DDU"), LocalTime.of(22, 20), LocalTime.of(22, 30), 212, 1);
+            addStop(train, 3, stations.get("PRYJ"), LocalTime.of(0, 20), LocalTime.of(0, 25), 365, 2);
+            addStop(train, 4, stations.get("CNB"), LocalTime.of(2, 25), LocalTime.of(2, 30), 559, 2);
+            addStop(train, 5, stations.get("NDLS"), LocalTime.of(7, 55), null, 999, 2);
+        });
+
+        // 12. HWH -> NDLS Sealdah - New Delhi AC Duronto Express (12260)
+        trainRepository.findByTrainNumber("12260").ifPresent(train -> {
+            addStop(train, 1, stations.get("HWH"), null, LocalTime.of(20, 0), 0, 1);
+            addStop(train, 2, stations.get("DHN"), LocalTime.of(23, 55), LocalTime.of(0, 0), 259, 1);
+            addStop(train, 3, stations.get("DDU"), LocalTime.of(4, 0), LocalTime.of(4, 10), 669, 2);
+            addStop(train, 4, stations.get("CNB"), LocalTime.of(6, 55), LocalTime.of(7, 0), 1015, 2);
+            addStop(train, 5, stations.get("NDLS"), LocalTime.of(10, 30), null, 1455, 2);
         });
 
         log.info("Initialized authentic demonstration train schedule halts.");

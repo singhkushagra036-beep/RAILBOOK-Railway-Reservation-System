@@ -19,21 +19,17 @@ RUN ./mvnw clean package -DskipTests
 FROM eclipse-temurin:21-jre AS runtime
 WORKDIR /app
 
-# Non-root application user for container security
-RUN useradd -u 1001 -m railbook && chown -R railbook:railbook /app
-USER railbook
-
 # Copy built JAR from builder
 COPY --from=builder /workspace/target/*.jar app.jar
 
-# Dynamic port binding (Vercel assigns $PORT)
-EXPOSE 8080
-ENV PORT=8080
+# Dynamic port binding: Vercel containers route to port 80 by default or inject $PORT
+EXPOSE 80 8080
+ENV PORT=80
 ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0"
 
-# Healthcheck
+# Healthcheck probe
 HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 \
   CMD curl -f http://localhost:${PORT}/health || exit 1
 
-# Execute Spring Boot application
+# Execute Spring Boot application reading port from $PORT (defaults to 80)
 ENTRYPOINT ["sh", "-c", "java ${JAVA_OPTS} -Dserver.port=${PORT} -jar app.jar"]

@@ -26,6 +26,7 @@ logs/
 .env.*
 application-local.properties
 application-secret.properties
+.vercel/
 
 # IntelliJ IDEA
 .idea/

@@ -1,0 +1,39 @@
+# Multi-stage Dockerfile for RailBook Railway Reservation System on Vercel Container Runtime
+# Stage 1: Build using Eclipse Temurin JDK 21
+FROM eclipse-temurin:21-jdk AS builder
+WORKDIR /workspace
+
+# Copy Maven wrapper and POM to leverage layer caching
+COPY .mvn/ .mvn/
+COPY mvnw pom.xml ./
+RUN chmod +x ./mvnw
+
+# Resolve dependencies
+RUN ./mvnw dependency:go-offline -B || true
+
+# Copy source and build executable JAR
+COPY src/ ./src/
+RUN ./mvnw clean package -DskipTests
+
+# Stage 2: Minimal, secure JRE 21 runtime
+FROM eclipse-temurin:21-jre AS runtime
+WORKDIR /app
+
+# Non-root application user for container security
+RUN useradd -u 1001 -m railbook && chown -R railbook:railbook /app
+USER railbook
+
+# Copy built JAR from builder
+COPY --from=builder /workspace/target/*.jar app.jar
+
+# Dynamic port binding (Vercel assigns $PORT)
+EXPOSE 8080
+ENV PORT=8080
+ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0"
+
+# Healthcheck
+HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 \
+  CMD curl -f http://localhost:${PORT}/health || exit 1
+
+# Execute Spring Boot application
+ENTRYPOINT ["sh", "-c", "java ${JAVA_OPTS} -Dserver.port=${PORT} -jar app.jar"]

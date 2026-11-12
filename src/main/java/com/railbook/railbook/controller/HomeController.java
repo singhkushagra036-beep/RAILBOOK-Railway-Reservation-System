@@ -37,6 +37,16 @@ public class HomeController {
         return "index";
     }
 
+    @org.springframework.web.bind.annotation.ResponseBody
+    @GetMapping(value = "/health", produces = org.springframework.http.MediaType.APPLICATION_JSON_VALUE)
+    public java.util.Map<String, Object> health() {
+        java.util.Map<String, Object> response = new java.util.LinkedHashMap<>();
+        response.put("status", "UP");
+        response.put("service", "RailBook - Railway Reservation System");
+        response.put("timestamp", java.time.Instant.now().toString());
+        return response;
+    }
+
     @GetMapping("/403")
     public String accessDenied(Model model) {
         model.addAttribute("errorCode", "403");

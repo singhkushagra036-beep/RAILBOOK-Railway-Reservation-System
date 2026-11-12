@@ -92,8 +92,41 @@
                         </li>
                         <li sec:authorize="hasRole('ADMIN')"><hr class="dropdown-divider"></li>
                         <li sec:authorize="hasRole('ADMIN')">
-                            <a class="dropdown-item fw-bold text-danger" th:href="@{/admin/dashboard}">
-                                <i class="bi bi-shield-lock me-2"></i> Admin Portal
+                            <h6 class="dropdown-header text-uppercase small fw-bold text-danger">Administration</h6>
+                        </li>
+                        <li sec:authorize="hasRole('ADMIN')">
+                            <a class="dropdown-item fw-bold text-dark" th:href="@{/admin/dashboard}">
+                                <i class="bi bi-shield-lock me-2 text-danger"></i> Admin Dashboard
+                            </a>
+                        </li>
+                        <li sec:authorize="hasRole('ADMIN')">
+                            <a class="dropdown-item" th:href="@{/admin/trains}">
+                                <i class="bi bi-train-front me-2 text-primary"></i> Manage Trains
+                            </a>
+                        </li>
+                        <li sec:authorize="hasRole('ADMIN')">
+                            <a class="dropdown-item" th:href="@{/admin/stations}">
+                                <i class="bi bi-geo-alt me-2 text-info"></i> Manage Stations
+                            </a>
+                        </li>
+                        <li sec:authorize="hasRole('ADMIN')">
+                            <a class="dropdown-item" th:href="@{/admin/inventory}">
+                                <i class="bi bi-sliders me-2 text-primary"></i> Seat Inventory
+                            </a>
+                        </li>
+                        <li sec:authorize="hasRole('ADMIN')">
+                            <a class="dropdown-item" th:href="@{/admin/bookings}">
+                                <i class="bi bi-ticket-detailed me-2 text-success"></i> All Reservations
+                            </a>
+                        </li>
+                        <li sec:authorize="hasRole('ADMIN')">
+                            <a class="dropdown-item" th:href="@{/admin/cancellations}">
+                                <i class="bi bi-arrow-counterclockwise me-2 text-danger"></i> Cancellations
+                            </a>
+                        </li>
+                        <li sec:authorize="hasRole('ADMIN')">
+                            <a class="dropdown-item" th:href="@{/admin/users}">
+                                <i class="bi bi-people me-2 text-secondary"></i> User Accounts
                             </a>
                         </li>
                         <li><hr class="dropdown-divider"></li>

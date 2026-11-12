@@ -14,4 +14,6 @@ public interface UserService {
     void changePassword(String email, PasswordChangeDto passwordDto);
     List<User> getAllUsers();
     long getTotalUserCount();
+    User toggleUserStatus(Long userId);
+    User toggleUserRole(Long userId);
 }

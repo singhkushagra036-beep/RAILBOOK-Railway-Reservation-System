@@ -35,9 +35,6 @@ public class SeatInventory {
     @Column(nullable = false)
     private int bookedSeats = 0;
 
-    @Version
-    private Long version;
-
     public SeatInventory() {
     }
 
@@ -104,13 +101,5 @@ public class SeatInventory {
 
     public void setBookedSeats(int bookedSeats) {
         this.bookedSeats = bookedSeats;
-    }
-
-    public Long getVersion() {
-        return version;
-    }
-
-    public void setVersion(Long version) {
-        this.version = version;
     }
 }

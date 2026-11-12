@@ -107,46 +107,68 @@
 
         <!-- Quick Management Shortcuts -->
         <div class="row g-3 mb-4">
-            <div class="col-md-3">
-                <a th:href="@{/admin/trains}" class="card p-3 border-0 shadow-sm text-decoration-none text-dark hover-bg rounded-3">
-                    <div class="d-flex align-items-center gap-3">
-                        <i class="bi bi-train-front fs-2 text-primary"></i>
+            <div class="col-md-4 col-lg-2">
+                <a th:href="@{/admin/trains}" class="card p-3 border-0 shadow-sm text-decoration-none text-dark hover-bg rounded-3 h-100">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-train-front fs-3 text-primary"></i>
                         <div>
-                            <div class="fw-bold">Manage Trains</div>
-                            <div class="small text-muted">Add, edit, or configure classes</div>
+                            <div class="fw-bold small">Trains</div>
+                            <div class="text-muted" style="font-size: 0.72rem;">Add & edit fleet</div>
                         </div>
                     </div>
                 </a>
             </div>
-            <div class="col-md-3">
-                <a th:href="@{/admin/stations}" class="card p-3 border-0 shadow-sm text-decoration-none text-dark hover-bg rounded-3">
-                    <div class="d-flex align-items-center gap-3">
-                        <i class="bi bi-geo-alt fs-2 text-info"></i>
+            <div class="col-md-4 col-lg-2">
+                <a th:href="@{/admin/stations}" class="card p-3 border-0 shadow-sm text-decoration-none text-dark hover-bg rounded-3 h-100">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-geo-alt fs-3 text-info"></i>
                         <div>
-                            <div class="fw-bold">Manage Stations</div>
-                            <div class="small text-muted">View codes and add halts</div>
+                            <div class="fw-bold small">Stations</div>
+                            <div class="text-muted" style="font-size: 0.72rem;">Codes & junctions</div>
                         </div>
                     </div>
                 </a>
             </div>
-            <div class="col-md-3">
-                <a th:href="@{/admin/bookings}" class="card p-3 border-0 shadow-sm text-decoration-none text-dark hover-bg rounded-3">
-                    <div class="d-flex align-items-center gap-3">
-                        <i class="bi bi-ticket-detailed fs-2 text-success"></i>
+            <div class="col-md-4 col-lg-2">
+                <a th:href="@{/admin/inventory}" class="card p-3 border-0 shadow-sm text-decoration-none text-dark hover-bg rounded-3 h-100">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-sliders fs-3 text-primary"></i>
                         <div>
-                            <div class="fw-bold">All Reservations</div>
-                            <div class="small text-muted">Browse confirmed bookings</div>
+                            <div class="fw-bold small">Seat Inventory</div>
+                            <div class="text-muted" style="font-size: 0.72rem;">Quotas & capacity</div>
                         </div>
                     </div>
                 </a>
             </div>
-            <div class="col-md-3">
-                <a th:href="@{/admin/cancellations}" class="card p-3 border-0 shadow-sm text-decoration-none text-dark hover-bg rounded-3">
-                    <div class="d-flex align-items-center gap-3">
-                        <i class="bi bi-arrow-counterclockwise fs-2 text-danger"></i>
+            <div class="col-md-4 col-lg-2">
+                <a th:href="@{/admin/bookings}" class="card p-3 border-0 shadow-sm text-decoration-none text-dark hover-bg rounded-3 h-100">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-ticket-detailed fs-3 text-success"></i>
                         <div>
-                            <div class="fw-bold">Cancellations</div>
-                            <div class="small text-muted">Audit simulated refunds</div>
+                            <div class="fw-bold small">Reservations</div>
+                            <div class="text-muted" style="font-size: 0.72rem;">Active bookings</div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-4 col-lg-2">
+                <a th:href="@{/admin/cancellations}" class="card p-3 border-0 shadow-sm text-decoration-none text-dark hover-bg rounded-3 h-100">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-arrow-counterclockwise fs-3 text-danger"></i>
+                        <div>
+                            <div class="fw-bold small">Cancellations</div>
+                            <div class="text-muted" style="font-size: 0.72rem;">Audit refunds</div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-4 col-lg-2">
+                <a th:href="@{/admin/users}" class="card p-3 border-0 shadow-sm text-decoration-none text-dark hover-bg rounded-3 h-100">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-people fs-3 text-secondary"></i>
+                        <div>
+                            <div class="fw-bold small">User Accounts</div>
+                            <div class="text-muted" style="font-size: 0.72rem;">Roles & access</div>
                         </div>
                     </div>
                 </a>

@@ -97,4 +97,30 @@ public class UserServiceImpl implements UserService {
     public long getTotalUserCount() {
         return userRepository.count();
     }
+
+    @Override
+    public User toggleUserStatus(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+        if ("admin@railbook.com".equalsIgnoreCase(user.getEmail())) {
+            throw new BookingException("Primary system administrator account cannot be disabled");
+        }
+        user.setEnabled(!user.isEnabled());
+        return userRepository.save(user);
+    }
+
+    @Override
+    public User toggleUserRole(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+        if ("admin@railbook.com".equalsIgnoreCase(user.getEmail())) {
+            throw new BookingException("Primary system administrator role cannot be altered");
+        }
+        if (user.getRole() == Role.ROLE_ADMIN) {
+            user.setRole(Role.ROLE_USER);
+        } else {
+            user.setRole(Role.ROLE_ADMIN);
+        }
+        return userRepository.save(user);
+    }
 }

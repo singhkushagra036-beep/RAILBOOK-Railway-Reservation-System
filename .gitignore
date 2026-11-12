@@ -1,33 +1,62 @@
-HELP.md
+# Build outputs
 target/
-.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
+build/
+*.class
 
-### STS ###
+# macOS system files
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Log files
+*.log
+logs/
+
+# Package & Archive files
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# Environment & Secrets
+.env
+.env.*
+application-local.properties
+application-secret.properties
+
+# IntelliJ IDEA
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+
+# Eclipse
 .apt_generated
 .classpath
 .factorypath
 .project
-.settings
+.settings/
 .springBeans
 .sts4-cache
 
-### IntelliJ IDEA ###
-.idea
-*.iws
-*.iml
-*.ipr
-
-### NetBeans ###
+# NetBeans
 /nbproject/private/
 /nbbuild/
 /dist/
 /nbdist/
-/.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
+/nb-gradle/
 
-### VS Code ###
+# Visual Studio Code
 .vscode/
+
+# Maven wrapper jar if downloaded
+.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+# Help files
+HELP.md

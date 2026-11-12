@@ -28,4 +28,8 @@ public interface SeatInventoryRepository extends JpaRepository<SeatInventory, Lo
     );
 
     List<SeatInventory> findByTrainAndJourneyDate(Train train, LocalDate journeyDate);
+
+    List<SeatInventory> findByJourneyDateOrderByTrainTrainNumberAsc(LocalDate journeyDate);
+
+    List<SeatInventory> findByTrainOrderByJourneyDateAscTravelClassAsc(Train train);
 }

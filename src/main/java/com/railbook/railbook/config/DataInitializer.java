@@ -26,6 +26,7 @@ public class DataInitializer implements CommandLineRunner {
     private final TrainRepository trainRepository;
     private final TrainClassConfigRepository classConfigRepository;
     private final SeatInventoryRepository seatInventoryRepository;
+    private final TrainScheduleRepository trainScheduleRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Value("${railbook.demo-data.enabled:true}")
@@ -36,12 +37,14 @@ public class DataInitializer implements CommandLineRunner {
                            TrainRepository trainRepository,
                            TrainClassConfigRepository classConfigRepository,
                            SeatInventoryRepository seatInventoryRepository,
+                           TrainScheduleRepository trainScheduleRepository,
                            PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.stationRepository = stationRepository;
         this.trainRepository = trainRepository;
         this.classConfigRepository = classConfigRepository;
         this.seatInventoryRepository = seatInventoryRepository;
+        this.trainScheduleRepository = trainScheduleRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -56,6 +59,7 @@ public class DataInitializer implements CommandLineRunner {
         initUsers();
         Map<String, Station> stationMap = initStations();
         initTrains(stationMap);
+        initSchedules(stationMap);
         log.info("RailBook demonstration data initialization complete.");
     }
 
@@ -98,7 +102,16 @@ public class DataInitializer implements CommandLineRunner {
                 {"LKO", "Lucknow Charbagh", "Lucknow", "Uttar Pradesh"},
                 {"PNBE", "Patna Junction", "Patna", "Bihar"},
                 {"JP", "Jaipur Junction", "Jaipur", "Rajasthan"},
-                {"ADI", "Ahmedabad Junction", "Ahmedabad", "Gujarat"}
+                {"ADI", "Ahmedabad Junction", "Ahmedabad", "Gujarat"},
+                {"CNB", "Kanpur Central", "Kanpur", "Uttar Pradesh"},
+                {"PRYJ", "Prayagraj Junction", "Prayagraj", "Uttar Pradesh"},
+                {"GZB", "Ghaziabad Junction", "Ghaziabad", "Uttar Pradesh"},
+                {"MB", "Moradabad Junction", "Moradabad", "Uttar Pradesh"},
+                {"BE", "Bareilly Junction", "Bareilly", "Uttar Pradesh"},
+                {"KOTA", "Kota Junction", "Kota", "Rajasthan"},
+                {"BRC", "Vadodara Junction", "Vadodara", "Gujarat"},
+                {"ST", "Surat", "Surat", "Gujarat"},
+                {"KPD", "Katpadi Junction", "Katpadi", "Tamil Nadu"}
         };
 
         for (String[] data : stationData) {
@@ -254,5 +267,85 @@ public class DataInitializer implements CommandLineRunner {
                 }
             }
         }
+    }
+
+    private void initSchedules(Map<String, Station> stations) {
+        if (trainScheduleRepository.count() > 0) {
+            return;
+        }
+
+        // 1. NDLS -> BSB Vande Bharat (22436)
+        trainRepository.findByTrainNumber("22436").ifPresent(train -> {
+            addStop(train, 1, stations.get("NDLS"), null, LocalTime.of(6, 0), 0, 1);
+            addStop(train, 2, stations.get("CNB"), LocalTime.of(10, 8), LocalTime.of(10, 10), 440, 1);
+            addStop(train, 3, stations.get("PRYJ"), LocalTime.of(12, 8), LocalTime.of(12, 10), 635, 1);
+            addStop(train, 4, stations.get("BSB"), LocalTime.of(14, 0), null, 759, 1);
+        });
+
+        // 2. BSB -> NDLS Vande Bharat (22435)
+        trainRepository.findByTrainNumber("22435").ifPresent(train -> {
+            addStop(train, 1, stations.get("BSB"), null, LocalTime.of(15, 0), 0, 1);
+            addStop(train, 2, stations.get("PRYJ"), LocalTime.of(16, 30), LocalTime.of(16, 32), 124, 1);
+            addStop(train, 3, stations.get("CNB"), LocalTime.of(18, 30), LocalTime.of(18, 32), 319, 1);
+            addStop(train, 4, stations.get("NDLS"), LocalTime.of(23, 0), null, 759, 1);
+        });
+
+        // 3. NDLS -> LKO Shatabdi (12004)
+        trainRepository.findByTrainNumber("12004").ifPresent(train -> {
+            addStop(train, 1, stations.get("NDLS"), null, LocalTime.of(6, 10), 0, 1);
+            addStop(train, 2, stations.get("GZB"), LocalTime.of(6, 48), LocalTime.of(6, 50), 26, 1);
+            addStop(train, 3, stations.get("MB"), LocalTime.of(8, 46), LocalTime.of(8, 51), 167, 1);
+            addStop(train, 4, stations.get("BE"), LocalTime.of(10, 13), LocalTime.of(10, 15), 258, 1);
+            addStop(train, 5, stations.get("LKO"), LocalTime.of(12, 40), null, 512, 1);
+        });
+
+        // 4. LKO -> NDLS Shatabdi (12003)
+        trainRepository.findByTrainNumber("12003").ifPresent(train -> {
+            addStop(train, 1, stations.get("LKO"), null, LocalTime.of(15, 30), 0, 1);
+            addStop(train, 2, stations.get("BE"), LocalTime.of(17, 35), LocalTime.of(17, 37), 235, 1);
+            addStop(train, 3, stations.get("MB"), LocalTime.of(19, 10), LocalTime.of(19, 15), 326, 1);
+            addStop(train, 4, stations.get("GZB"), LocalTime.of(21, 33), LocalTime.of(21, 35), 486, 1);
+            addStop(train, 5, stations.get("NDLS"), LocalTime.of(22, 15), null, 512, 1);
+        });
+
+        // 5. NDLS -> MMCT Tejas Rajdhani (12952)
+        trainRepository.findByTrainNumber("12952").ifPresent(train -> {
+            addStop(train, 1, stations.get("NDLS"), null, LocalTime.of(16, 55), 0, 1);
+            addStop(train, 2, stations.get("KOTA"), LocalTime.of(21, 30), LocalTime.of(21, 40), 465, 1);
+            addStop(train, 3, stations.get("BRC"), LocalTime.of(3, 50), LocalTime.of(4, 0), 992, 2);
+            addStop(train, 4, stations.get("ST"), LocalTime.of(5, 13), LocalTime.of(5, 18), 1122, 2);
+            addStop(train, 5, stations.get("MMCT"), LocalTime.of(8, 35), null, 1386, 2);
+        });
+
+        // 6. MMCT -> NDLS Tejas Rajdhani (12951)
+        trainRepository.findByTrainNumber("12951").ifPresent(train -> {
+            addStop(train, 1, stations.get("MMCT"), null, LocalTime.of(17, 0), 0, 1);
+            addStop(train, 2, stations.get("ST"), LocalTime.of(19, 43), LocalTime.of(19, 48), 263, 1);
+            addStop(train, 3, stations.get("BRC"), LocalTime.of(21, 6), LocalTime.of(21, 16), 392, 1);
+            addStop(train, 4, stations.get("KOTA"), LocalTime.of(3, 15), LocalTime.of(3, 20), 920, 2);
+            addStop(train, 5, stations.get("NDLS"), LocalTime.of(8, 32), null, 1386, 2);
+        });
+
+        // 7. SBC -> MAS Shatabdi (12061)
+        trainRepository.findByTrainNumber("12061").ifPresent(train -> {
+            addStop(train, 1, stations.get("SBC"), null, LocalTime.of(6, 0), 0, 1);
+            addStop(train, 2, stations.get("KPD"), LocalTime.of(9, 18), LocalTime.of(9, 20), 229, 1);
+            addStop(train, 3, stations.get("MAS"), LocalTime.of(11, 0), null, 359, 1);
+        });
+
+        // 8. MAS -> SBC Shatabdi (12062)
+        trainRepository.findByTrainNumber("12062").ifPresent(train -> {
+            addStop(train, 1, stations.get("MAS"), null, LocalTime.of(17, 30), 0, 1);
+            addStop(train, 2, stations.get("KPD"), LocalTime.of(19, 8), LocalTime.of(19, 10), 130, 1);
+            addStop(train, 3, stations.get("SBC"), LocalTime.of(22, 30), null, 359, 1);
+        });
+
+        log.info("Initialized authentic demonstration train schedule halts.");
+    }
+
+    private void addStop(Train train, int stopNumber, Station station, LocalTime arr, LocalTime dep, int distanceKm, int dayCount) {
+        if (station == null) return;
+        TrainSchedule schedule = new TrainSchedule(train, stopNumber, station, arr, dep, distanceKm, dayCount);
+        trainScheduleRepository.save(schedule);
     }
 }

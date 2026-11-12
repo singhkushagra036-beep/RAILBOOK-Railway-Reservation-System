@@ -12,4 +12,7 @@ public interface SeatInventoryService {
     SeatInventory reserveSeatsWithLock(Train train, LocalDate journeyDate, TravelClass travelClass, int requestedSeats);
     void restoreSeats(Train train, LocalDate journeyDate, TravelClass travelClass, int seatsToRestore);
     List<SeatInventory> getInventoryForDate(Train train, LocalDate journeyDate);
+    List<SeatInventory> getInventoryByDate(LocalDate date);
+    List<SeatInventory> getInventoryByTrain(Train train);
+    SeatInventory adjustInventory(Long inventoryId, int newTotalSeats, int newAvailableSeats);
 }

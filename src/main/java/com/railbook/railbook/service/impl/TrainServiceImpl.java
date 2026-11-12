@@ -9,6 +9,7 @@ import com.railbook.railbook.model.*;
 import com.railbook.railbook.repository.StationRepository;
 import com.railbook.railbook.repository.TrainClassConfigRepository;
 import com.railbook.railbook.repository.TrainRepository;
+import com.railbook.railbook.repository.TrainScheduleRepository;
 import com.railbook.railbook.service.SeatInventoryService;
 import com.railbook.railbook.service.TrainService;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,15 +29,18 @@ public class TrainServiceImpl implements TrainService {
     private final StationRepository stationRepository;
     private final TrainClassConfigRepository classConfigRepository;
     private final SeatInventoryService seatInventoryService;
+    private final TrainScheduleRepository trainScheduleRepository;
 
     public TrainServiceImpl(TrainRepository trainRepository,
                             StationRepository stationRepository,
                             TrainClassConfigRepository classConfigRepository,
-                            SeatInventoryService seatInventoryService) {
+                            SeatInventoryService seatInventoryService,
+                            TrainScheduleRepository trainScheduleRepository) {
         this.trainRepository = trainRepository;
         this.stationRepository = stationRepository;
         this.classConfigRepository = classConfigRepository;
         this.seatInventoryService = seatInventoryService;
+        this.trainScheduleRepository = trainScheduleRepository;
     }
 
     @Override
@@ -183,5 +188,29 @@ public class TrainServiceImpl implements TrainService {
     @Transactional(readOnly = true)
     public long getTotalTrainCount() {
         return trainRepository.count();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<TrainSchedule> getTrainSchedules(Long trainId) {
+        Train train = getTrainById(trainId);
+        return trainScheduleRepository.findByTrainOrderByStopNumberAsc(train);
+    }
+
+    @Override
+    public TrainSchedule addTrainSchedule(Long trainId, int stopNumber, Long stationId, LocalTime arrivalTime, LocalTime departureTime, int distanceKm, int dayCount) {
+        Train train = getTrainById(trainId);
+        Station station = stationRepository.findById(stationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Station not found with id: " + stationId));
+
+        TrainSchedule schedule = new TrainSchedule(train, stopNumber, station, arrivalTime, departureTime, distanceKm, dayCount > 0 ? dayCount : 1);
+        return trainScheduleRepository.save(schedule);
+    }
+
+    @Override
+    public void deleteTrainSchedule(Long scheduleId) {
+        TrainSchedule schedule = trainScheduleRepository.findById(scheduleId)
+                .orElseThrow(() -> new ResourceNotFoundException("Schedule halt not found with id: " + scheduleId));
+        trainScheduleRepository.delete(schedule);
     }
 }

@@ -2,19 +2,21 @@ package com.railbook.railbook.controller;
 
 import com.railbook.railbook.dto.AdminStationDto;
 import com.railbook.railbook.dto.AdminTrainDto;
-import com.railbook.railbook.model.Booking;
-import com.railbook.railbook.model.Station;
-import com.railbook.railbook.model.Train;
-import com.railbook.railbook.model.TrainClassConfig;
+import com.railbook.railbook.model.*;
 import com.railbook.railbook.repository.TrainClassConfigRepository;
 import com.railbook.railbook.service.*;
 import jakarta.validation.Valid;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 
@@ -29,6 +31,7 @@ public class AdminController {
     private final CancellationService cancellationService;
     private final UserService userService;
     private final TrainClassConfigRepository classConfigRepository;
+    private final SeatInventoryService seatInventoryService;
 
     public AdminController(AdminDashboardService adminDashboardService,
                            TrainService trainService,
@@ -36,7 +39,8 @@ public class AdminController {
                            BookingService bookingService,
                            CancellationService cancellationService,
                            UserService userService,
-                           TrainClassConfigRepository classConfigRepository) {
+                           TrainClassConfigRepository classConfigRepository,
+                           SeatInventoryService seatInventoryService) {
         this.adminDashboardService = adminDashboardService;
         this.trainService = trainService;
         this.stationService = stationService;
@@ -44,6 +48,7 @@ public class AdminController {
         this.cancellationService = cancellationService;
         this.userService = userService;
         this.classConfigRepository = classConfigRepository;
+        this.seatInventoryService = seatInventoryService;
     }
 
     @GetMapping("/dashboard")
@@ -189,10 +194,136 @@ public class AdminController {
         return "admin/cancellations/cancellation-list";
     }
 
+    @PostMapping("/bookings/{pnr}/cancel")
+    public String cancelBookingByAdmin(@PathVariable("pnr") String pnr,
+                                       @RequestParam(value = "reason", defaultValue = "Cancelled by Administrator") String reason,
+                                       @AuthenticationPrincipal UserDetails userDetails,
+                                       RedirectAttributes redirectAttributes) {
+        try {
+            cancellationService.cancelTicket(pnr, userDetails.getUsername(), reason);
+            redirectAttributes.addFlashAttribute("successMessage", "Booking " + pnr + " has been cancelled and seat inventory restored.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Error cancelling booking: " + e.getMessage());
+        }
+        return "redirect:/admin/bookings/" + pnr;
+    }
+
     // --- User Management ---
     @GetMapping("/users")
     public String listUsers(Model model) {
         model.addAttribute("users", userService.getAllUsers());
         return "admin/users/user-list";
+    }
+
+    @PostMapping("/users/{id}/toggle-status")
+    public String toggleUserStatus(@PathVariable("id") Long id, RedirectAttributes redirectAttributes) {
+        try {
+            User updated = userService.toggleUserStatus(id);
+            redirectAttributes.addFlashAttribute("successMessage",
+                    "User account " + updated.getEmail() + " is now " + (updated.isEnabled() ? "Active" : "Disabled") + ".");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        }
+        return "redirect:/admin/users";
+    }
+
+    @PostMapping("/users/{id}/toggle-role")
+    public String toggleUserRole(@PathVariable("id") Long id, RedirectAttributes redirectAttributes) {
+        try {
+            User updated = userService.toggleUserRole(id);
+            redirectAttributes.addFlashAttribute("successMessage",
+                    "User role for " + updated.getEmail() + " changed to " + updated.getRole().name() + ".");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        }
+        return "redirect:/admin/users";
+    }
+
+    // --- Seat Inventory Management ---
+    @GetMapping("/inventory")
+    public String viewSeatInventory(@RequestParam(value = "trainId", required = false) Long trainId,
+                                    @RequestParam(value = "date", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+                                    Model model) {
+        LocalDate queryDate = date != null ? date : LocalDate.now();
+        List<Train> trains = trainService.getAllTrains();
+        List<SeatInventory> inventories;
+
+        if (trainId != null) {
+            Train train = trainService.getTrainById(trainId);
+            inventories = seatInventoryService.getInventoryForDate(train, queryDate);
+            model.addAttribute("selectedTrain", train);
+        } else {
+            inventories = seatInventoryService.getInventoryByDate(queryDate);
+        }
+
+        model.addAttribute("trains", trains);
+        model.addAttribute("inventories", inventories);
+        model.addAttribute("selectedDate", queryDate);
+        model.addAttribute("selectedTrainId", trainId);
+        return "admin/inventory/inventory-list";
+    }
+
+    @PostMapping("/inventory/adjust")
+    public String adjustSeatInventory(@RequestParam("inventoryId") Long inventoryId,
+                                      @RequestParam("totalSeats") int totalSeats,
+                                      @RequestParam("availableSeats") int availableSeats,
+                                      @RequestParam(value = "trainId", required = false) Long trainId,
+                                      @RequestParam(value = "date", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+                                      RedirectAttributes redirectAttributes) {
+        try {
+            seatInventoryService.adjustInventory(inventoryId, totalSeats, availableSeats);
+            redirectAttributes.addFlashAttribute("successMessage", "Seat inventory adjusted successfully.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Error updating inventory: " + e.getMessage());
+        }
+        String redirectUrl = "redirect:/admin/inventory?date=" + (date != null ? date : LocalDate.now());
+        if (trainId != null) {
+            redirectUrl += "&trainId=" + trainId;
+        }
+        return redirectUrl;
+    }
+
+    // --- Train Route Schedules & Halts Management ---
+    @GetMapping("/trains/{id}/schedules")
+    public String manageTrainSchedules(@PathVariable("id") Long trainId, Model model) {
+        Train train = trainService.getTrainById(trainId);
+        List<TrainSchedule> schedules = trainService.getTrainSchedules(trainId);
+        List<Station> stations = stationService.getAllStations();
+
+        model.addAttribute("train", train);
+        model.addAttribute("schedules", schedules);
+        model.addAttribute("stations", stations);
+        return "admin/trains/train-schedules";
+    }
+
+    @PostMapping("/trains/{id}/schedules/add")
+    public String addTrainSchedule(@PathVariable("id") Long trainId,
+                                   @RequestParam("stopNumber") int stopNumber,
+                                   @RequestParam("stationId") Long stationId,
+                                   @RequestParam(value = "arrivalTime", required = false) @DateTimeFormat(pattern = "HH:mm") LocalTime arrivalTime,
+                                   @RequestParam(value = "departureTime", required = false) @DateTimeFormat(pattern = "HH:mm") LocalTime departureTime,
+                                   @RequestParam(value = "distanceKm", defaultValue = "0") int distanceKm,
+                                   @RequestParam(value = "dayCount", defaultValue = "1") int dayCount,
+                                   RedirectAttributes redirectAttributes) {
+        try {
+            trainService.addTrainSchedule(trainId, stopNumber, stationId, arrivalTime, departureTime, distanceKm, dayCount);
+            redirectAttributes.addFlashAttribute("successMessage", "Route stop added successfully.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Error adding stop: " + e.getMessage());
+        }
+        return "redirect:/admin/trains/" + trainId + "/schedules";
+    }
+
+    @PostMapping("/trains/{id}/schedules/delete/{scheduleId}")
+    public String deleteTrainSchedule(@PathVariable("id") Long trainId,
+                                      @PathVariable("scheduleId") Long scheduleId,
+                                      RedirectAttributes redirectAttributes) {
+        try {
+            trainService.deleteTrainSchedule(scheduleId);
+            redirectAttributes.addFlashAttribute("successMessage", "Route stop removed successfully.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Error deleting stop: " + e.getMessage());
+        }
+        return "redirect:/admin/trains/" + trainId + "/schedules";
     }
 }

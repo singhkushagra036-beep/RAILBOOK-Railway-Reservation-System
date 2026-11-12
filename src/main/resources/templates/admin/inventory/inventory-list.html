@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/header :: head('Seat Inventory Management')}"></head>
+<body class="bg-light">
+
+<nav th:replace="~{layout/header :: navbar}"></nav>
+
+<main class="py-5">
+    <div class="container">
+        <!-- Flash Alerts -->
+        <div th:if="${successMessage}" class="alert alert-success d-flex align-items-center mb-4" role="alert">
+            <i class="bi bi-check-circle-fill me-2 fs-5"></i>
+            <span th:text="${successMessage}">Success</span>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger d-flex align-items-center mb-4" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+            <span th:text="${errorMessage}">Error</span>
+        </div>
+
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+            <div>
+                <a th:href="@{/admin/dashboard}" class="text-decoration-none small text-muted">
+                    <i class="bi bi-arrow-left"></i> Back to Dashboard
+                </a>
+                <h4 class="fw-bold mb-0 text-dark">Live Seat Inventory & Quota Register</h4>
+                <div class="text-muted small">Monitor real-time class-wise seat capacity, bookings, and live availability.</div>
+            </div>
+            <a th:href="@{/admin/trains}" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-train-front me-1"></i> Manage Trains
+            </a>
+        </div>
+
+        <!-- Filter Card -->
+        <div class="card shadow-sm border-0 rounded-4 p-4 bg-white mb-4">
+            <form th:action="@{/admin/inventory}" method="get" class="row g-3 align-items-end">
+                <div class="col-md-5">
+                    <label class="form-label small fw-bold text-muted">Filter by Train</label>
+                    <select name="trainId" class="form-select">
+                        <option value="">All Running Trains</option>
+                        <option th:each="t : ${trains}"
+                                th:value="${t.id}"
+                                th:text="${t.trainNumber} + ' - ' + ${t.trainName} + ' (' + ${t.sourceStation.stationCode} + ' → ' + ${t.destinationStation.stationCode} + ')'"
+                                th:selected="${selectedTrainId != null && selectedTrainId == t.id}">
+                        </option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small fw-bold text-muted">Journey Date</label>
+                    <input type="date" name="date" class="form-control" th:value="${selectedDate}" required>
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-primary w-100 fw-bold" style="background-color: #0077B6;">
+                        <i class="bi bi-filter me-1"></i> Apply Filter
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Inventory Table Card -->
+        <div class="card border-0 shadow-sm rounded-4 bg-white overflow-hidden">
+            <div class="card-header bg-white p-3 border-bottom d-flex justify-content-between align-items-center">
+                <span class="fw-bold text-dark">
+                    <i class="bi bi-calendar3 text-primary me-2"></i>
+                    Inventory for Date: <span class="text-primary" th:text="${#temporals.format(selectedDate, 'EEEE, dd MMMM yyyy')}">Date</span>
+                </span>
+                <span class="badge bg-primary px-3 py-2" th:text="${inventories.size()} + ' Quota Entries'">0 Entries</span>
+            </div>
+
+            <div th:if="${inventories.isEmpty()}" class="p-5 text-center text-muted">
+                <i class="bi bi-inbox fs-1 d-block mb-2 text-secondary opacity-50"></i>
+                <h5 class="fw-bold text-dark">No Inventory Records Found</h5>
+                <p class="small">No seat inventory has been generated or queried for this train on the selected date.</p>
+            </div>
+
+            <div th:unless="${inventories.isEmpty()}" class="table-responsive">
+                <table class="table table-hover align-middle mb-0 small">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Train # & Name</th>
+                            <th>Route</th>
+                            <th>Class</th>
+                            <th class="text-center">Total Capacity</th>
+                            <th class="text-center">Booked Seats</th>
+                            <th class="text-center">Available Seats</th>
+                            <th>Inventory Status</th>
+                            <th class="text-end">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="inv : ${inventories}">
+                            <td>
+                                <strong class="text-primary font-monospace" th:text="${inv.train.trainNumber}">12004</strong>
+                                <div class="fw-bold text-dark" th:text="${inv.train.trainName}">Lucknow Shatabdi</div>
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark border" th:text="${inv.train.sourceStation.stationCode}">NDLS</span>
+                                →
+                                <span class="badge bg-light text-dark border" th:text="${inv.train.destinationStation.stationCode}">LKO</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-primary-subtle text-primary fw-bold" th:text="${inv.travelClass.code}">CC</span>
+                                <span class="small text-muted" th:text="${inv.travelClass.displayName}">Chair Car</span>
+                            </td>
+                            <td class="text-center fw-bold text-dark" th:text="${inv.totalSeats}">72</td>
+                            <td class="text-center text-danger fw-semibold" th:text="${inv.bookedSeats}">12</td>
+                            <td class="text-center">
+                                <span th:if="${inv.availableSeats > 10}" class="badge bg-success-subtle text-success fs-6 fw-bold" th:text="${inv.availableSeats}">60</span>
+                                <span th:if="${inv.availableSeats > 0 && inv.availableSeats <= 10}" class="badge bg-warning-subtle text-dark fs-6 fw-bold" th:text="${inv.availableSeats}">5</span>
+                                <span th:if="${inv.availableSeats == 0}" class="badge bg-danger-subtle text-danger fs-6 fw-bold">Sold Out</span>
+                            </td>
+                            <td>
+                                <div class="progress" style="height: 6px; width: 100px;">
+                                    <div class="progress-bar bg-success"
+                                         role="progressbar"
+                                         th:style="'width: ' + ${(inv.availableSeats * 100) / (inv.totalSeats > 0 ? inv.totalSeats : 1)} + '%;'">
+                                    </div>
+                                </div>
+                                <span class="text-muted" style="font-size: 0.72rem;"
+                                      th:text="${(inv.availableSeats * 100) / (inv.totalSeats > 0 ? inv.totalSeats : 1)} + '% Open'">
+                                </span>
+                            </td>
+                            <td class="text-end">
+                                <button type="button" class="btn btn-outline-primary btn-sm fw-semibold"
+                                        data-bs-toggle="modal"
+                                        th:data-bs-target="'#adjustModal-' + ${inv.id}">
+                                    <i class="bi bi-sliders me-1"></i> Adjust
+                                </button>
+
+                                <!-- Adjust Modal -->
+                                <div class="modal fade text-start" th:id="'adjustModal-' + ${inv.id}" tabindex="-1" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header bg-primary text-white" style="background: linear-gradient(135deg, #0B2545 0%, #134074 100%) !important;">
+                                                <h5 class="modal-title fw-bold">
+                                                    <i class="bi bi-sliders me-1"></i> Adjust Seat Inventory
+                                                </h5>
+                                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <form th:action="@{/admin/inventory/adjust}" method="post">
+                                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                                <input type="hidden" name="inventoryId" th:value="${inv.id}">
+                                                <input type="hidden" name="trainId" th:value="${selectedTrainId}">
+                                                <input type="hidden" name="date" th:value="${selectedDate}">
+
+                                                <div class="modal-body">
+                                                    <div class="p-3 bg-light rounded-3 mb-3 small">
+                                                        <div>Train: <strong th:text="${inv.train.trainNumber} + ' - ' + ${inv.train.trainName}">Train</strong></div>
+                                                        <div>Class: <strong class="text-primary" th:text="${inv.travelClass.displayName}">Class</strong></div>
+                                                        <div>Date: <strong th:text="${#temporals.format(inv.journeyDate, 'dd-MMM-yyyy')}">Date</strong></div>
+                                                    </div>
+
+                                                    <div class="mb-3">
+                                                        <label class="form-label small fw-bold">Total Capacity</label>
+                                                        <input type="number" name="totalSeats" class="form-control" th:value="${inv.totalSeats}" min="0" max="500" required>
+                                                        <div class="form-text small">Total coach physical seating capacity.</div>
+                                                    </div>
+
+                                                    <div class="mb-3">
+                                                        <label class="form-label small fw-bold">Available Seats</label>
+                                                        <input type="number" name="availableSeats" class="form-control" th:value="${inv.availableSeats}" min="0" max="500" required>
+                                                        <div class="form-text small">Seats immediately open for passenger reservation.</div>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                                                    <button type="submit" class="btn btn-primary btn-sm fw-bold">Save Changes</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{layout/footer :: footer}"></footer>
+
+</body>
+</html>

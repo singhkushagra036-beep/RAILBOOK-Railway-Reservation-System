@@ -1,5 +1,6 @@
 package com.railbook.railbook.service.impl;
 
+import com.railbook.railbook.exception.BookingException;
 import com.railbook.railbook.exception.ResourceNotFoundException;
 import com.railbook.railbook.exception.SeatNotAvailableException;
 import com.railbook.railbook.model.SeatInventory;
@@ -60,12 +61,20 @@ public class SeatInventoryServiceImpl implements SeatInventoryService {
     @Override
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public SeatInventory reserveSeatsWithLock(Train train, LocalDate journeyDate, TravelClass travelClass, int requestedSeats) {
-        // Ensure inventory row exists first
-        getOrCreateInventory(train, journeyDate, travelClass);
+        // Fetch directly with PESSIMISTIC_WRITE lock to prevent race conditions & double-booking
+        Optional<SeatInventory> invOpt = seatInventoryRepository.findWithLockByTrainAndJourneyDateAndTravelClass(train, journeyDate, travelClass);
+        SeatInventory inventory;
 
-        // Fetch with PESSIMISTIC_WRITE lock to prevent race conditions & double-booking
-        SeatInventory inventory = seatInventoryRepository.findWithLockByTrainAndJourneyDateAndTravelClass(train, journeyDate, travelClass)
-                .orElseThrow(() -> new ResourceNotFoundException("Inventory not found"));
+        if (invOpt.isPresent()) {
+            inventory = invOpt.get();
+        } else {
+            TrainClassConfig config = classConfigRepository.findByTrainAndTravelClass(train, travelClass)
+                    .orElseThrow(() -> new ResourceNotFoundException("Class " + travelClass.getCode() + " not configured for train " + train.getTrainNumber()));
+            inventory = new SeatInventory(train, journeyDate, travelClass, config.getTotalSeats());
+            inventory = seatInventoryRepository.saveAndFlush(inventory);
+            inventory = seatInventoryRepository.findWithLockByTrainAndJourneyDateAndTravelClass(train, journeyDate, travelClass)
+                    .orElse(inventory);
+        }
 
         if (inventory.getAvailableSeats() < requestedSeats) {
             throw new SeatNotAvailableException(
@@ -77,7 +86,7 @@ public class SeatInventoryServiceImpl implements SeatInventoryService {
         inventory.setAvailableSeats(inventory.getAvailableSeats() - requestedSeats);
         inventory.setBookedSeats(inventory.getBookedSeats() + requestedSeats);
 
-        return seatInventoryRepository.save(inventory);
+        return seatInventoryRepository.saveAndFlush(inventory);
     }
 
     @Override
@@ -97,5 +106,35 @@ public class SeatInventoryServiceImpl implements SeatInventoryService {
     @Transactional(readOnly = true)
     public List<SeatInventory> getInventoryForDate(Train train, LocalDate journeyDate) {
         return seatInventoryRepository.findByTrainAndJourneyDate(train, journeyDate);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<SeatInventory> getInventoryByDate(LocalDate date) {
+        return seatInventoryRepository.findByJourneyDateOrderByTrainTrainNumberAsc(date);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<SeatInventory> getInventoryByTrain(Train train) {
+        return seatInventoryRepository.findByTrainOrderByJourneyDateAscTravelClassAsc(train);
+    }
+
+    @Override
+    public SeatInventory adjustInventory(Long inventoryId, int newTotalSeats, int newAvailableSeats) {
+        SeatInventory inventory = seatInventoryRepository.findById(inventoryId)
+                .orElseThrow(() -> new ResourceNotFoundException("Seat inventory record not found with id: " + inventoryId));
+
+        if (newTotalSeats < 0 || newAvailableSeats < 0) {
+            throw new BookingException("Seat capacities cannot be negative");
+        }
+        if (newAvailableSeats > newTotalSeats) {
+            throw new BookingException("Available seats cannot exceed total seats");
+        }
+
+        inventory.setTotalSeats(newTotalSeats);
+        inventory.setAvailableSeats(newAvailableSeats);
+        inventory.setBookedSeats(newTotalSeats - newAvailableSeats);
+        return seatInventoryRepository.save(inventory);
     }
 }

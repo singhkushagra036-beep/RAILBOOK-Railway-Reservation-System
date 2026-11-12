@@ -6,6 +6,7 @@ import com.railbook.railbook.model.*;
 import com.railbook.railbook.repository.BookingRepository;
 import com.railbook.railbook.repository.CancellationRepository;
 import com.railbook.railbook.repository.PaymentRepository;
+import com.railbook.railbook.repository.UserRepository;
 import com.railbook.railbook.service.CancellationService;
 import com.railbook.railbook.service.SeatInventoryService;
 import org.springframework.stereotype.Service;
@@ -25,15 +26,18 @@ public class CancellationServiceImpl implements CancellationService {
     private final CancellationRepository cancellationRepository;
     private final SeatInventoryService seatInventoryService;
     private final PaymentRepository paymentRepository;
+    private final UserRepository userRepository;
 
     public CancellationServiceImpl(BookingRepository bookingRepository,
                                    CancellationRepository cancellationRepository,
                                    SeatInventoryService seatInventoryService,
-                                   PaymentRepository paymentRepository) {
+                                   PaymentRepository paymentRepository,
+                                   UserRepository userRepository) {
         this.bookingRepository = bookingRepository;
         this.cancellationRepository = cancellationRepository;
         this.seatInventoryService = seatInventoryService;
         this.paymentRepository = paymentRepository;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -42,11 +46,11 @@ public class CancellationServiceImpl implements CancellationService {
                 .orElseThrow(() -> new ResourceNotFoundException("Booking not found with PNR: " + pnr));
 
         // Security check: ensure requesting user owns the booking or is admin
-        if (userEmail != null && !booking.getUser().getEmail().equalsIgnoreCase(userEmail.trim())
-                && !booking.getUser().getRole().name().equals("ROLE_ADMIN")) {
-            // Check if user is admin
+        if (userEmail != null) {
+            User requestingUser = userRepository.findByEmail(userEmail.trim().toLowerCase()).orElse(null);
             boolean isOwner = booking.getUser().getEmail().equalsIgnoreCase(userEmail.trim());
-            if (!isOwner) {
+            boolean isAdmin = requestingUser != null && requestingUser.getRole() == Role.ROLE_ADMIN;
+            if (!isOwner && !isAdmin) {
                 throw new BookingException("You are not authorized to cancel this booking");
             }
         }

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/header :: head('Search Results')}"></head>
+<body class="bg-light">
+
+<nav th:replace="~{layout/header :: navbar}"></nav>
+
+<main class="py-4">
+    <div class="container">
+        <!-- Compact Search Form Bar -->
+        <div class="card shadow-sm border-0 rounded-3 mb-4 p-3 bg-white">
+            <form th:action="@{/search}" method="get" th:object="${searchDto}">
+                <div class="row g-2 align-items-end">
+                    <div class="col-md-3">
+                        <label class="form-label small fw-bold text-muted mb-1">From Station</label>
+                        <select th:field="*{sourceStationCode}" id="sourceStationCode" class="form-select form-select-sm" required>
+                            <option value="">Select Origin...</option>
+                            <option th:each="st : ${stations}"
+                                    th:value="${st.stationCode}"
+                                    th:text="${st.stationName} + ' (' + ${st.stationCode} + ')'"
+                                    th:selected="${st.stationCode == searchDto.sourceStationCode}">
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="col-auto d-none d-md-block" style="margin-bottom: 2px;">
+                        <button type="button" class="btn-swap-stations btn-sm" onclick="swapStations()">
+                            <i class="bi bi-arrow-left-right"></i>
+                        </button>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label small fw-bold text-muted mb-1">To Station</label>
+                        <select th:field="*{destinationStationCode}" id="destinationStationCode" class="form-select form-select-sm" required>
+                            <option value="">Select Destination...</option>
+                            <option th:each="st : ${stations}"
+                                    th:value="${st.stationCode}"
+                                    th:text="${st.stationName} + ' (' + ${st.stationCode} + ')'"
+                                    th:selected="${st.stationCode == searchDto.destinationStationCode}">
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-2">
+                        <label class="form-label small fw-bold text-muted mb-1">Journey Date</label>
+                        <input type="date" th:field="*{journeyDate}" class="form-control form-control-sm" required>
+                    </div>
+
+                    <div class="col-md-2">
+                        <label class="form-label small fw-bold text-muted mb-1">Class Filter</label>
+                        <select th:field="*{travelClassCode}" class="form-select form-select-sm">
+                            <option value="">All Classes</option>
+                            <option value="1A">AC First Class (1A)</option>
+                            <option value="2A">AC 2 Tier (2A)</option>
+                            <option value="3A">AC 3 Tier (3A)</option>
+                            <option value="CC">AC Chair Car (CC)</option>
+                            <option value="EC">Exec Chair Car (EC)</option>
+                            <option value="SL">Sleeper (SL)</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-1">
+                        <button type="submit" class="btn btn-primary btn-sm w-100 fw-bold" style="background-color: #0077B6;">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Search Error Notification -->
+        <div th:if="${searchError}" class="alert alert-warning d-flex align-items-center mb-4" role="alert">
+            <i class="bi bi-exclamation-circle-fill me-2 fs-5"></i>
+            <span th:text="${searchError}">Search notice</span>
+        </div>
+
+        <!-- Results Header -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <h4 class="fw-bold mb-0 text-dark">Available Trains</h4>
+                <div class="text-muted small" th:if="${searchDto.journeyDate != null}">
+                    Date: <strong th:text="${#temporals.format(searchDto.journeyDate, 'EEEE, dd MMMM yyyy')}">Monday</strong>
+                </div>
+            </div>
+            <span class="badge bg-primary rounded-pill px-3 py-2 fs-6" th:text="${searchResults.size()} + ' Trains Found'">0 Trains Found</span>
+        </div>
+
+        <!-- No Results Empty State -->
+        <div th:if="${searchResults.isEmpty()}" class="card border-0 shadow-sm rounded-4 p-5 text-center bg-white my-4">
+            <div class="mb-3 text-muted">
+                <i class="bi bi-train-front fs-1 text-secondary opacity-50"></i>
+            </div>
+            <h4 class="fw-bold text-dark">No Trains Found</h4>
+            <p class="text-muted max-w-500 mx-auto">
+                No active train services run on the selected date for this station pair. Try choosing another journey date or swap the route direction.
+            </p>
+            <div class="d-flex justify-content-center gap-2 mt-2">
+                <a th:href="@{/}" class="btn btn-outline-primary btn-sm">
+                    <i class="bi bi-arrow-left me-1"></i> Back to Home
+                </a>
+            </div>
+        </div>
+
+        <!-- Search Results List -->
+        <div th:each="train : ${searchResults}" class="train-card">
+            <!-- Train Header -->
+            <div class="train-card-header">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="fw-bold fs-5 text-primary" th:text="${train.trainNumber}">12004</span>
+                    <span class="text-muted">|</span>
+                    <h5 class="fw-bold mb-0 text-dark" th:text="${train.trainName}">Lucknow Shatabdi</h5>
+                </div>
+                <div>
+                    <span class="train-type-badge bg-primary-subtle text-primary" th:text="${train.trainType}">Express</span>
+                    <span class="badge bg-light text-muted border ms-2 small">
+                        Runs: <span th:text="${train.runningDays}">MON..SUN</span>
+                    </span>
+                </div>
+            </div>
+
+            <!-- Train Body -->
+            <div class="train-card-body">
+                <div class="row align-items-center mb-3">
+                    <div class="col-lg-6">
+                        <div class="train-timing-block">
+                            <!-- Departure -->
+                            <div>
+                                <div class="train-time" th:text="${#temporals.format(train.departureTime, 'HH:mm')}">06:00</div>
+                                <div class="fw-semibold text-dark" th:text="${train.sourceStationName}">Origin</div>
+                                <div class="train-station-code" th:text="'(' + ${train.sourceStationCode} + ')'">(NDLS)</div>
+                            </div>
+
+                            <!-- Duration -->
+                            <div class="train-duration-indicator">
+                                <div class="small text-muted fw-semibold" th:text="${train.durationHours}">06h 30m</div>
+                                <div class="train-duration-line"></div>
+                                <div class="small text-success" style="font-size: 0.75rem;">Daily Service</div>
+                            </div>
+
+                            <!-- Arrival -->
+                            <div>
+                                <div class="train-time" th:text="${#temporals.format(train.arrivalTime, 'HH:mm')}">12:30</div>
+                                <div class="fw-semibold text-dark" th:text="${train.destinationStationName}">Destination</div>
+                                <div class="train-station-code" th:text="'(' + ${train.destinationStationCode} + ')'">(LKO)</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6 border-start-lg pt-3 pt-lg-0 ps-lg-4">
+                        <!-- Classes Grid -->
+                        <div class="row g-2">
+                            <div th:each="cls : ${train.classAvailabilities}" class="col-6 col-sm-4">
+                                <div class="class-pill" th:classappend="${!cls.available} ? 'sold-out' : ''">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <span class="class-name" th:text="${cls.classCode}">CC</span>
+                                        <span class="class-fare" th:text="'₹ ' + ${cls.fare}">₹ 1,165</span>
+                                    </div>
+                                    <div class="mb-2">
+                                        <span th:if="${cls.available}" class="class-seats avail">
+                                            <i class="bi bi-check-circle-fill me-1"></i>
+                                            <strong th:text="${cls.availableSeats}">45</strong> Seats
+                                        </span>
+                                        <span th:unless="${cls.available}" class="class-seats not-avail">
+                                            <i class="bi bi-x-circle-fill me-1"></i> Sold Out
+                                        </span>
+                                    </div>
+                                    <div th:if="${cls.available}">
+                                        <a th:href="@{/booking/new(trainId=${train.trainId}, travelClass=${cls.classCode}, journeyDate=${train.journeyDate})}"
+                                           class="btn btn-sm btn-primary w-100 py-1 fw-bold" style="background-color: #0077B6; font-size: 0.8rem;">
+                                            Book Now
+                                        </a>
+                                    </div>
+                                    <div th:unless="${cls.available}">
+                                        <button disabled class="btn btn-sm btn-secondary w-100 py-1" style="font-size: 0.8rem;">
+                                            Unavailable
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center pt-2 border-top small text-muted">
+                    <span>
+                        <i class="bi bi-info-circle me-1"></i> Boarding Station: <strong th:text="${train.sourceStationName}">Origin</strong>
+                    </span>
+                    <a th:href="@{/trains/{id}(id=${train.trainId})}" class="text-decoration-none fw-semibold">
+                        View Schedule & Halts <i class="bi bi-chevron-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{layout/footer :: footer}"></footer>
+
+</body>
+</html>

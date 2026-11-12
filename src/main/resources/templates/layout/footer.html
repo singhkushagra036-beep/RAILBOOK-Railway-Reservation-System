@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<footer th:fragment="footer" class="footer-railbook">
+    <div class="container">
+        <div class="row g-4 mb-4">
+            <div class="col-lg-4 col-md-6">
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <i class="bi bi-train-front-fill fs-3 text-info"></i>
+                    <span class="fs-4 fw-bold text-white">RAILBOOK</span>
+                </div>
+                <p class="text-secondary small pe-lg-4">
+                    Next-generation railway reservation system offering seamless train search, real-time seat availability, instant PNR tracking, and simulated ticketing.
+                </p>
+                <div class="d-flex gap-3 text-secondary fs-5 mt-2">
+                    <a href="#" class="text-secondary"><i class="bi bi-github"></i></a>
+                    <a href="#" class="text-secondary"><i class="bi bi-linkedin"></i></a>
+                    <a href="#" class="text-secondary"><i class="bi bi-twitter-x"></i></a>
+                </div>
+            </div>
+
+            <div class="col-lg-2 col-md-6">
+                <h5>Quick Links</h5>
+                <ul class="list-unstyled small d-flex flex-column gap-2">
+                    <li><a th:href="@{/}">Home</a></li>
+                    <li><a th:href="@{/search}">Search Trains</a></li>
+                    <li><a th:href="@{/pnr}">Check PNR Status</a></li>
+                    <li><a th:href="@{/login}">User Login</a></li>
+                    <li><a th:href="@{/register}">Create Account</a></li>
+                </ul>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <h5>Popular Hubs</h5>
+                <ul class="list-unstyled small d-flex flex-column gap-2 text-secondary">
+                    <li>New Delhi (NDLS) ⇄ Varanasi (BSB)</li>
+                    <li>New Delhi (NDLS) ⇄ Lucknow (LKO)</li>
+                    <li>New Delhi (NDLS) ⇄ Mumbai Central (MMCT)</li>
+                    <li>Bengaluru (SBC) ⇄ Chennai (MAS)</li>
+                    <li>Jaipur (JP) ⇄ New Delhi (NDLS)</li>
+                </ul>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <h5>System Notice</h5>
+                <div class="p-3 rounded bg-dark border border-secondary border-opacity-25 small text-secondary">
+                    <div class="d-flex align-items-center gap-2 text-warning mb-1 fw-bold">
+                        <i class="bi bi-shield-check"></i> Academic Simulation
+                    </div>
+                    RailBook is an academic engineering reservation portal. Train schedules, seat allocations, payments, and refunds are simulated for demonstration purposes.
+                </div>
+            </div>
+        </div>
+
+        <hr class="border-secondary border-opacity-25 my-3">
+
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center small text-secondary gap-2">
+            <div>
+                © 2026 RAILBOOK – Railway Reservation System. Built with Spring Boot & MariaDB.
+            </div>
+            <div class="d-flex gap-3">
+                <span>Java 21</span>
+                <span>•</span>
+                <span>Spring Security</span>
+                <span>•</span>
+                <span>Thymeleaf</span>
+                <span>•</span>
+                <span>MariaDB 12</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom RailBook JS -->
+    <script th:src="@{/js/railbook.js}"></script>
+</footer>
+
+</body>
+</html>

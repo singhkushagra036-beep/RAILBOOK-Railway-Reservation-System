@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/header :: head('Account Settings')}"></head>
+<body class="bg-light">
+
+<nav th:replace="~{layout/header :: navbar}"></nav>
+
+<main class="py-5">
+    <div class="container">
+        <!-- Alerts -->
+        <div th:if="${profileSuccess}" class="alert alert-success d-flex align-items-center mb-4" role="alert">
+            <i class="bi bi-check-circle-fill me-2 fs-5"></i>
+            <span th:text="${profileSuccess}">Profile updated</span>
+        </div>
+        <div th:if="${profileError}" class="alert alert-danger d-flex align-items-center mb-4" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+            <span th:text="${profileError}">Profile error</span>
+        </div>
+        <div th:if="${passwordSuccess}" class="alert alert-success d-flex align-items-center mb-4" role="alert">
+            <i class="bi bi-check-circle-fill me-2 fs-5"></i>
+            <span th:text="${passwordSuccess}">Password updated</span>
+        </div>
+        <div th:if="${passwordError}" class="alert alert-danger d-flex align-items-center mb-4" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+            <span th:text="${passwordError}">Password error</span>
+        </div>
+
+        <div class="row g-4 justify-content-center">
+            <!-- Profile Info Form -->
+            <div class="col-lg-5">
+                <div class="card shadow-sm border-0 rounded-4 p-4 bg-white h-100">
+                    <h5 class="fw-bold mb-3 text-dark">
+                        <i class="bi bi-person-lines-fill text-primary me-2"></i>Personal Details
+                    </h5>
+                    <form th:action="@{/profile/update}" method="post" th:object="${profileDto}">
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Email Address</label>
+                            <input type="email" th:field="*{email}" class="form-control" readonly disabled>
+                            <div class="form-text small">Email cannot be changed once registered.</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Full Name *</label>
+                            <input type="text" th:field="*{fullName}" class="form-control" required>
+                            <div class="text-danger small mt-1" th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}"></div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label small fw-bold">Phone Number (10 digits)</label>
+                            <input type="tel" th:field="*{phone}" class="form-control" pattern="[0-9]{10}">
+                            <div class="text-danger small mt-1" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}"></div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 fw-bold" style="background-color: #0077B6;">
+                            Save Profile Changes
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Change Password Form -->
+            <div class="col-lg-5">
+                <div class="card shadow-sm border-0 rounded-4 p-4 bg-white h-100">
+                    <h5 class="fw-bold mb-3 text-dark">
+                        <i class="bi bi-shield-lock-fill text-danger me-2"></i>Change Password
+                    </h5>
+                    <form th:action="@{/profile/change-password}" method="post" th:object="${passwordDto}">
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Current Password *</label>
+                            <input type="password" th:field="*{currentPassword}" class="form-control" required>
+                            <div class="text-danger small mt-1" th:if="${#fields.hasErrors('currentPassword')}" th:errors="*{currentPassword}"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">New Password (min 6 chars) *</label>
+                            <input type="password" th:field="*{newPassword}" class="form-control" required>
+                            <div class="text-danger small mt-1" th:if="${#fields.hasErrors('newPassword')}" th:errors="*{newPassword}"></div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label small fw-bold">Confirm New Password *</label>
+                            <input type="password" th:field="*{confirmNewPassword}" class="form-control" required>
+                            <div class="text-danger small mt-1" th:if="${#fields.hasErrors('confirmNewPassword')}" th:errors="*{confirmNewPassword}"></div>
+                        </div>
+
+                        <button type="submit" class="btn btn-outline-danger w-100 fw-bold">
+                            Update Password
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{layout/footer :: footer}"></footer>
+
+</body>
+</html>

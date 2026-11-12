@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/header :: head('Book Train Tickets Effortlessly')}"></head>
+<body>
+
+<nav th:replace="~{layout/header :: navbar}"></nav>
+
+<main>
+    <!-- Hero Section with Integrated Search Widget -->
+    <section class="hero-section">
+        <div class="container position-relative">
+            <div class="row align-items-center mb-4">
+                <div class="col-lg-8 mx-auto text-center">
+                    <span class="badge bg-info text-dark px-3 py-2 rounded-pill fw-bold mb-3">
+                        <i class="bi bi-stars me-1"></i> Premium Railway Reservation Platform
+                    </span>
+                    <h1 class="hero-title mb-3">Travel Across India with RailBook</h1>
+                    <p class="hero-subtitle">
+                        Fast, secure and intuitive railway reservations with live availability, instant 10-digit PNR tracking, and electronic ticketing.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Booking Search Box -->
+            <div class="row">
+                <div class="col-lg-10 mx-auto">
+                    <div class="search-widget-card">
+                        <form th:action="@{/search}" method="get" th:object="${searchDto}">
+                            <div class="row g-3 align-items-end">
+                                <!-- Source Station -->
+                                <div class="col-md-3">
+                                    <label class="form-label">
+                                        <i class="bi bi-geo-alt-fill text-primary me-1"></i> From Station
+                                    </label>
+                                    <select th:field="*{sourceStationCode}" id="sourceStationCode" class="form-select" required>
+                                        <option value="">Select Origin...</option>
+                                        <option th:each="st : ${stations}"
+                                                th:value="${st.stationCode}"
+                                                th:text="${st.stationName} + ' (' + ${st.stationCode} + ')'">
+                                        </option>
+                                    </select>
+                                </div>
+
+                                <!-- Station Swap Button -->
+                                <div class="col-auto text-center d-none d-md-block px-0" style="margin-bottom: 6px;">
+                                    <button type="button" class="btn-swap-stations" title="Swap Stations" onclick="swapStations()">
+                                        <i class="bi bi-arrow-left-right"></i>
+                                    </button>
+                                </div>
+
+                                <!-- Destination Station -->
+                                <div class="col-md-3">
+                                    <label class="form-label">
+                                        <i class="bi bi-geo-fill text-danger me-1"></i> To Station
+                                    </label>
+                                    <select th:field="*{destinationStationCode}" id="destinationStationCode" class="form-select" required>
+                                        <option value="">Select Destination...</option>
+                                        <option th:each="st : ${stations}"
+                                                th:value="${st.stationCode}"
+                                                th:text="${st.stationName} + ' (' + ${st.stationCode} + ')'">
+                                        </option>
+                                    </select>
+                                </div>
+
+                                <!-- Journey Date -->
+                                <div class="col-md-2">
+                                    <label class="form-label">
+                                        <i class="bi bi-calendar3 text-primary me-1"></i> Date of Journey
+                                    </label>
+                                    <input type="date" th:field="*{journeyDate}" class="form-control" required>
+                                </div>
+
+                                <!-- Travel Class Filter -->
+                                <div class="col-md-2">
+                                    <label class="form-label">
+                                        <i class="bi bi-ticket-detailed me-1"></i> Class
+                                    </label>
+                                    <select th:field="*{travelClassCode}" class="form-select">
+                                        <option value="">All Classes</option>
+                                        <option value="1A">AC First Class (1A)</option>
+                                        <option value="2A">AC 2 Tier (2A)</option>
+                                        <option value="3A">AC 3 Tier (3A)</option>
+                                        <option value="CC">AC Chair Car (CC)</option>
+                                        <option value="EC">Exec Chair Car (EC)</option>
+                                        <option value="SL">Sleeper (SL)</option>
+                                    </select>
+                                </div>
+
+                                <!-- Search Submit Button -->
+                                <div class="col-md-12 col-lg-auto ms-lg-auto mt-3 mt-lg-0">
+                                    <button type="submit" class="btn btn-search-trains w-100">
+                                        <i class="bi bi-search me-1"></i> Find Trains
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick Services Ribbon -->
+    <section class="py-4 bg-white border-bottom">
+        <div class="container">
+            <div class="row g-3 text-center">
+                <div class="col-6 col-md-3">
+                    <a th:href="@{/search}" class="text-decoration-none text-dark d-flex align-items-center justify-content-center gap-2 p-2 rounded hover-bg">
+                        <i class="bi bi-train-front fs-3 text-primary"></i>
+                        <div class="text-start">
+                            <div class="fw-bold small">Book Trains</div>
+                            <div class="text-muted" style="font-size: 0.75rem;">Fastest routes</div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-6 col-md-3">
+                    <a th:href="@{/pnr}" class="text-decoration-none text-dark d-flex align-items-center justify-content-center gap-2 p-2 rounded hover-bg">
+                        <i class="bi bi-search-heart fs-3 text-secondary"></i>
+                        <div class="text-start">
+                            <div class="fw-bold small">PNR Enquiry</div>
+                            <div class="text-muted" style="font-size: 0.75rem;">Instant status check</div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-6 col-md-3">
+                    <a th:href="@{/my-bookings}" class="text-decoration-none text-dark d-flex align-items-center justify-content-center gap-2 p-2 rounded hover-bg">
+                        <i class="bi bi-file-earmark-pdf fs-3 text-danger"></i>
+                        <div class="text-start">
+                            <div class="fw-bold small">Download E-Ticket</div>
+                            <div class="text-muted" style="font-size: 0.75rem;">Print & PDF ready</div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-6 col-md-3">
+                    <a th:href="@{/my-bookings}" class="text-decoration-none text-dark d-flex align-items-center justify-content-center gap-2 p-2 rounded hover-bg">
+                        <i class="bi bi-arrow-counterclockwise fs-3 text-success"></i>
+                        <div class="text-start">
+                            <div class="fw-bold small">Cancel Ticket</div>
+                            <div class="text-muted" style="font-size: 0.75rem;">Instant simulated refund</div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Popular Routes Section -->
+    <section class="py-5">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-end mb-4">
+                <div>
+                    <h6 class="text-uppercase text-primary fw-bold small">Explore India</h6>
+                    <h3 class="fw-bold mb-0">Popular Railway Routes</h3>
+                </div>
+                <a th:href="@{/search}" class="btn btn-outline-primary btn-sm fw-semibold">
+                    View All Routes <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+
+            <div class="row g-4">
+                <!-- Route 1 -->
+                <div class="col-md-6 col-lg-3">
+                    <div class="feature-card">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="badge bg-primary-subtle text-primary fw-bold">High Speed</span>
+                            <span class="small text-muted">08h 00m</span>
+                        </div>
+                        <h5 class="fw-bold mb-1">New Delhi ⇄ Varanasi</h5>
+                        <p class="text-muted small mb-3">Vande Bharat Express (22436 / 22435)</p>
+                        <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                            <span class="text-secondary fw-bold">From ₹ 1,750</span>
+                            <a th:href="@{/search(sourceStationCode='NDLS', destinationStationCode='BSB')}" class="btn btn-sm btn-primary">
+                                Book Now
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Route 2 -->
+                <div class="col-md-6 col-lg-3">
+                    <div class="feature-card">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="badge bg-success-subtle text-success fw-bold">Daily Superfast</span>
+                            <span class="small text-muted">06h 30m</span>
+                        </div>
+                        <h5 class="fw-bold mb-1">New Delhi ⇄ Lucknow</h5>
+                        <p class="text-muted small mb-3">Swarna Shatabdi Express (12004)</p>
+                        <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                            <span class="text-secondary fw-bold">From ₹ 1,165</span>
+                            <a th:href="@{/search(sourceStationCode='NDLS', destinationStationCode='LKO')}" class="btn btn-sm btn-primary">
+                                Book Now
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Route 3 -->
+                <div class="col-md-6 col-lg-3">
+                    <div class="feature-card">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="badge bg-danger-subtle text-danger fw-bold">Overnight Tejas</span>
+                            <span class="small text-muted">15h 40m</span>
+                        </div>
+                        <h5 class="fw-bold mb-1">New Delhi ⇄ Mumbai</h5>
+                        <p class="text-muted small mb-3">Mumbai Tejas Rajdhani (12952)</p>
+                        <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                            <span class="text-secondary fw-bold">From ₹ 2,050</span>
+                            <a th:href="@{/search(sourceStationCode='NDLS', destinationStationCode='MMCT')}" class="btn btn-sm btn-primary">
+                                Book Now
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Route 4 -->
+                <div class="col-md-6 col-lg-3">
+                    <div class="feature-card">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="badge bg-info-subtle text-dark fw-bold">Southern Corridor</span>
+                            <span class="small text-muted">05h 00m</span>
+                        </div>
+                        <h5 class="fw-bold mb-1">Bengaluru ⇄ Chennai</h5>
+                        <p class="text-muted small mb-3">Bengaluru Shatabdi (12061)</p>
+                        <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                            <span class="text-secondary fw-bold">From ₹ 985</span>
+                            <a th:href="@{/search(sourceStationCode='SBC', destinationStationCode='MAS')}" class="btn btn-sm btn-primary">
+                                Book Now
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Popular Trains Showcase -->
+    <section class="py-5 bg-white border-top border-bottom">
+        <div class="container">
+            <div class="text-center max-w-700 mx-auto mb-5">
+                <h6 class="text-uppercase text-primary fw-bold small">Premier Fleet</h6>
+                <h3 class="fw-bold">Iconic Trains of India</h3>
+                <p class="text-muted">Experience world-class speed, convenience, and comfort across prestigious express services.</p>
+            </div>
+
+            <div class="row g-4">
+                <div th:each="train : ${featuredTrains}" class="col-md-6 col-lg-4">
+                    <div class="card h-100 border shadow-sm rounded-3">
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <span class="badge bg-dark px-2 py-1" th:text="${train.trainNumber}">12004</span>
+                                <span class="badge bg-light text-primary border" th:text="${train.trainType}">Shatabdi</span>
+                            </div>
+                            <h5 class="card-title fw-bold mb-1" th:text="${train.trainName}">Train Name</h5>
+                            <div class="small text-muted mb-3">
+                                <span th:text="${train.sourceStation.stationName}">Source</span>
+                                <i class="bi bi-arrow-right mx-1 text-primary"></i>
+                                <span th:text="${train.destinationStation.stationName}">Destination</span>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center p-2 rounded bg-light mb-3 small">
+                                <div>
+                                    <div class="text-muted" style="font-size: 0.75rem;">Departs</div>
+                                    <div class="fw-bold" th:text="${#temporals.format(train.departureTime, 'HH:mm')} + ' hrs'">06:00</div>
+                                </div>
+                                <div>
+                                    <div class="text-muted" style="font-size: 0.75rem;">Duration</div>
+                                    <div class="fw-bold" th:text="${train.durationHours}">06h 30m</div>
+                                </div>
+                                <div>
+                                    <div class="text-muted" style="font-size: 0.75rem;">Arrives</div>
+                                    <div class="fw-bold" th:text="${#temporals.format(train.arrivalTime, 'HH:mm')} + ' hrs'">12:30</div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="small text-muted">
+                                    <i class="bi bi-calendar-check me-1"></i>
+                                    <span th:text="${train.runningDays}">MON..SUN</span>
+                                </div>
+                                <a th:href="@{/search(sourceStationCode=${train.sourceStation.stationCode}, destinationStationCode=${train.destinationStation.stationCode})}" class="btn btn-sm btn-outline-primary">
+                                    Check Seats
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Why Choose RailBook? Section -->
+    <section class="py-5">
+        <div class="container">
+            <div class="text-center max-w-700 mx-auto mb-5">
+                <h6 class="text-uppercase text-primary fw-bold small">Why Us</h6>
+                <h3 class="fw-bold">Designed for Effortless Rail Travel</h3>
+                <p class="text-muted">A modern engineering architecture built for reliability, concurrency safety, and instant transactions.</p>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="feature-card text-center">
+                        <div class="feature-icon-wrapper mx-auto">
+                            <i class="bi bi-shield-lock-fill"></i>
+                        </div>
+                        <h5 class="fw-bold">Zero Double Booking</h5>
+                        <p class="text-muted small">
+                            Database-level pessimistic write locking ensures seat inventory integrity even during high-concurrency booking rushes.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card text-center">
+                        <div class="feature-icon-wrapper mx-auto">
+                            <i class="bi bi-speedometer"></i>
+                        </div>
+                        <h5 class="fw-bold">Live PNR Tracking</h5>
+                        <p class="text-muted small">
+                            Instant 10-digit Indian Railway format PNR generation with live status updates, coach numbers, and allocated berths.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card text-center">
+                        <div class="feature-icon-wrapper mx-auto">
+                            <i class="bi bi-printer-fill"></i>
+                        </div>
+                        <h5 class="fw-bold">Official E-Tickets & PDF</h5>
+                        <p class="text-muted small">
+                            Generate beautiful electronic reservation slips (ERS) with print-ready stylesheets and server-rendered PDF ticket downloads.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer th:replace="~{layout/footer :: footer}"></footer>
+
+</body>
+</html>

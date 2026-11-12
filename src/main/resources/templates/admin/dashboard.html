@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/header :: head('Admin Control Center')}"></head>
+<body class="bg-light">
+
+<nav th:replace="~{layout/header :: navbar}"></nav>
+
+<main class="py-5">
+    <div class="container">
+        <!-- Admin Header -->
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4 p-4 rounded-4 bg-white shadow-sm border">
+            <div>
+                <span class="badge bg-danger-subtle text-danger fw-bold mb-1">Administrative Control Portal</span>
+                <h3 class="fw-bold mb-0 text-dark">RailBook System Administration</h3>
+                <div class="text-muted small">Manage trains, stations, seat inventory, users, and reservations.</div>
+            </div>
+            <div class="d-flex gap-2">
+                <a th:href="@{/admin/trains/new}" class="btn btn-primary btn-sm fw-bold" style="background-color: #0077B6;">
+                    <i class="bi bi-plus-circle me-1"></i> Add New Train
+                </a>
+                <a th:href="@{/admin/stations}" class="btn btn-outline-secondary btn-sm fw-semibold">
+                    <i class="bi bi-geo-alt me-1"></i> Stations
+                </a>
+            </div>
+        </div>
+
+        <!-- 6 Metrics Cards -->
+        <div class="row g-3 mb-4">
+            <!-- Total Users -->
+            <div class="col-sm-6 col-lg-4 col-xl-2">
+                <div class="stat-card p-3">
+                    <div class="stat-icon bg-primary bg-opacity-10 text-primary fs-3" style="width: 44px; height: 44px;">
+                        <i class="bi bi-people"></i>
+                    </div>
+                    <div>
+                        <div class="stat-val fs-4" th:text="${totalUsers}">0</div>
+                        <div class="stat-label small">Registered Users</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Total Trains -->
+            <div class="col-sm-6 col-lg-4 col-xl-2">
+                <div class="stat-card p-3">
+                    <div class="stat-icon bg-info bg-opacity-10 text-info fs-3" style="width: 44px; height: 44px;">
+                        <i class="bi bi-train-front"></i>
+                    </div>
+                    <div>
+                        <div class="stat-val fs-4" th:text="${totalTrains}">0</div>
+                        <div class="stat-label small">Active Trains</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Total Stations -->
+            <div class="col-sm-6 col-lg-4 col-xl-2">
+                <div class="stat-card p-3">
+                    <div class="stat-icon bg-secondary bg-opacity-10 text-secondary fs-3" style="width: 44px; height: 44px;">
+                        <i class="bi bi-geo-alt"></i>
+                    </div>
+                    <div>
+                        <div class="stat-val fs-4" th:text="${totalStations}">0</div>
+                        <div class="stat-label small">Stations</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Total Bookings -->
+            <div class="col-sm-6 col-lg-4 col-xl-2">
+                <div class="stat-card p-3">
+                    <div class="stat-icon bg-primary bg-opacity-10 text-primary fs-3" style="width: 44px; height: 44px;">
+                        <i class="bi bi-journal-bookmark"></i>
+                    </div>
+                    <div>
+                        <div class="stat-val fs-4" th:text="${totalBookings}">0</div>
+                        <div class="stat-label small">Total Bookings</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Confirmed vs Cancelled -->
+            <div class="col-sm-6 col-lg-4 col-xl-2">
+                <div class="stat-card p-3">
+                    <div class="stat-icon bg-success bg-opacity-10 text-success fs-3" style="width: 44px; height: 44px;">
+                        <i class="bi bi-check-circle"></i>
+                    </div>
+                    <div>
+                        <div class="stat-val fs-4" th:text="${confirmedBookings}">0</div>
+                        <div class="stat-label small">Confirmed</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Simulated Revenue -->
+            <div class="col-sm-6 col-lg-4 col-xl-2">
+                <div class="stat-card p-3">
+                    <div class="stat-icon bg-success bg-opacity-10 text-success fs-3" style="width: 44px; height: 44px;">
+                        <i class="bi bi-cash-coin"></i>
+                    </div>
+                    <div>
+                        <div class="stat-val fs-5" th:text="'₹' + ${totalRevenue}">₹0</div>
+                        <div class="stat-label small">Simulated Rev</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Management Shortcuts -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-3">
+                <a th:href="@{/admin/trains}" class="card p-3 border-0 shadow-sm text-decoration-none text-dark hover-bg rounded-3">
+                    <div class="d-flex align-items-center gap-3">
+                        <i class="bi bi-train-front fs-2 text-primary"></i>
+                        <div>
+                            <div class="fw-bold">Manage Trains</div>
+                            <div class="small text-muted">Add, edit, or configure classes</div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-3">
+                <a th:href="@{/admin/stations}" class="card p-3 border-0 shadow-sm text-decoration-none text-dark hover-bg rounded-3">
+                    <div class="d-flex align-items-center gap-3">
+                        <i class="bi bi-geo-alt fs-2 text-info"></i>
+                        <div>
+                            <div class="fw-bold">Manage Stations</div>
+                            <div class="small text-muted">View codes and add halts</div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-3">
+                <a th:href="@{/admin/bookings}" class="card p-3 border-0 shadow-sm text-decoration-none text-dark hover-bg rounded-3">
+                    <div class="d-flex align-items-center gap-3">
+                        <i class="bi bi-ticket-detailed fs-2 text-success"></i>
+                        <div>
+                            <div class="fw-bold">All Reservations</div>
+                            <div class="small text-muted">Browse confirmed bookings</div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-3">
+                <a th:href="@{/admin/cancellations}" class="card p-3 border-0 shadow-sm text-decoration-none text-dark hover-bg rounded-3">
+                    <div class="d-flex align-items-center gap-3">
+                        <i class="bi bi-arrow-counterclockwise fs-2 text-danger"></i>
+                        <div>
+                            <div class="fw-bold">Cancellations</div>
+                            <div class="small text-muted">Audit simulated refunds</div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Recent Reservations Table -->
+        <div class="card shadow-sm border-0 rounded-4 p-4 bg-white">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0 text-dark">Recent Platform Reservations</h5>
+                <a th:href="@{/admin/bookings}" class="btn btn-outline-primary btn-sm fw-semibold">
+                    View Master Bookings List <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+
+            <div th:if="${recentBookings.isEmpty()}" class="text-center py-4 text-muted">
+                No bookings recorded yet.
+            </div>
+
+            <div th:unless="${recentBookings.isEmpty()}" class="table-responsive">
+                <table class="table table-hover align-middle mb-0 small">
+                    <thead class="table-light">
+                        <tr>
+                            <th>PNR</th>
+                            <th>Booked By</th>
+                            <th>Train</th>
+                            <th>Route</th>
+                            <th>Date</th>
+                            <th>Fare</th>
+                            <th>Status</th>
+                            <th class="text-end">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="b : ${recentBookings}">
+                            <td>
+                                <strong class="text-primary font-monospace" th:text="${b.pnrNumber}">4829104821</strong>
+                            </td>
+                            <td>
+                                <div class="fw-bold" th:text="${b.user.fullName}">User</div>
+                                <div class="text-muted" style="font-size: 0.75rem;" th:text="${b.user.email}">email</div>
+                            </td>
+                            <td>
+                                <span class="fw-bold" th:text="${b.train.trainNumber}">12004</span> - <span th:text="${b.train.trainName}">Name</span>
+                            </td>
+                            <td>
+                                <span th:text="${b.train.sourceStation.stationCode}">NDLS</span> → <span th:text="${b.train.destinationStation.stationCode}">LKO</span>
+                            </td>
+                            <td th:text="${#temporals.format(b.journeyDate, 'dd-MMM-yyyy')}">Date</td>
+                            <td><strong class="text-success" th:text="'₹ ' + ${b.totalFare}">₹ 1,165</strong></td>
+                            <td>
+                                <span th:if="${b.bookingStatus.name() == 'CONFIRMED'}" class="badge bg-success-subtle text-success fw-bold">
+                                    CONFIRMED
+                                </span>
+                                <span th:if="${b.bookingStatus.name() == 'CANCELLED'}" class="badge bg-danger-subtle text-danger fw-bold">
+                                    CANCELLED
+                                </span>
+                            </td>
+                            <td class="text-end">
+                                <a th:href="@{/admin/bookings/{pnr}(pnr=${b.pnrNumber})}" class="btn btn-sm btn-outline-primary">
+                                    Details
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{layout/footer :: footer}"></footer>
+
+</body>
+</html>

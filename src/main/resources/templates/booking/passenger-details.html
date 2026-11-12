@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/header :: head('Passenger Details & Reservation')}"></head>
+<body class="bg-light">
+
+<nav th:replace="~{layout/header :: navbar}"></nav>
+
+<main class="py-4">
+    <div class="container">
+        <!-- Error Notice -->
+        <div th:if="${bookingError}" class="alert alert-danger d-flex align-items-center mb-4" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+            <span th:text="${bookingError}">Booking error</span>
+        </div>
+
+        <!-- Train Summary Header Card -->
+        <div class="card shadow-sm border-0 rounded-4 mb-4 overflow-hidden">
+            <div class="card-header bg-primary text-white p-3" style="background: linear-gradient(135deg, #0B2545 0%, #134074 100%) !important;">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <div>
+                        <span class="badge bg-info text-dark fw-bold me-2" th:text="${train.trainType}">Type</span>
+                        <span class="fw-bold fs-5" th:text="${train.trainNumber} + ' - ' + ${train.trainName}">12004 - Shatabdi Express</span>
+                    </div>
+                    <div class="badge bg-light text-primary px-3 py-2 fs-6 fw-bold">
+                        Class: <span th:text="${travelClass.displayName}">AC Chair Car</span>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body p-3 bg-white">
+                <div class="row g-3 align-items-center text-center text-md-start">
+                    <div class="col-md-3">
+                        <div class="small text-muted">From Station</div>
+                        <div class="fw-bold text-dark" th:text="${train.sourceStation.formattedDisplay}">New Delhi (NDLS)</div>
+                        <div class="text-primary fw-bold" th:text="${#temporals.format(train.departureTime, 'HH:mm')} + ' hrs'">06:00 hrs</div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="small text-muted">To Station</div>
+                        <div class="fw-bold text-dark" th:text="${train.destinationStation.formattedDisplay}">Lucknow (LKO)</div>
+                        <div class="text-primary fw-bold" th:text="${#temporals.format(train.arrivalTime, 'HH:mm')} + ' hrs'">12:30 hrs</div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="small text-muted">Date of Journey</div>
+                        <div class="fw-bold text-dark" th:text="${#temporals.format(journeyDate, 'EEEE, dd MMM yyyy')}">Monday, 20 Nov 2026</div>
+                        <div class="small text-muted" th:text="'Duration: ' + ${train.durationHours}">Duration: 06h 30m</div>
+                    </div>
+                    <div class="col-md-3 text-md-end">
+                        <div class="small text-muted">Availability</div>
+                        <div class="text-success fw-bold fs-5">
+                            <i class="bi bi-check-circle-fill"></i>
+                            <span th:text="${availableSeats}">45</span> Seats Available
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <form th:action="@{/booking/confirm}" method="post" th:object="${bookingRequest}">
+            <!-- Hidden Fields -->
+            <input type="hidden" th:field="*{trainId}">
+            <input type="hidden" th:field="*{travelClass}">
+            <input type="hidden" th:field="*{journeyDate}">
+
+            <div class="row g-4">
+                <!-- Left: Passenger Entries -->
+                <div class="col-lg-8">
+                    <div class="card shadow-sm border-0 rounded-4 p-4 bg-white mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <h5 class="fw-bold mb-0 text-dark">
+                                    <i class="bi bi-people-fill text-primary me-2"></i>Passenger Information
+                                </h5>
+                                <div class="text-muted small">Enter passenger details as per original government ID card.</div>
+                            </div>
+                            <button type="button" class="btn btn-outline-primary btn-sm fw-bold" onclick="addPassengerRow()">
+                                <i class="bi bi-person-plus-fill me-1"></i> + Add Passenger
+                            </button>
+                        </div>
+
+                        <!-- Dynamic Passengers Container -->
+                        <div id="passengersContainer">
+                            <div th:each="passenger, stat : *{passengers}"
+                                 class="passenger-row card mb-3 p-3 border"
+                                 th:id="'passenger-row-' + ${stat.index}">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h6 class="fw-bold mb-0 text-primary" th:text="'Passenger #' + ${stat.index + 1}">Passenger #1</h6>
+                                    <button type="button" class="btn btn-sm btn-outline-danger"
+                                            th:onclick="'removePassengerRow(' + ${stat.index} + ')'"
+                                            th:style="${stat.first} ? 'display: none;' : ''">
+                                        <i class="bi bi-trash"></i> Remove
+                                    </button>
+                                </div>
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <label class="form-label small fw-bold">Full Name *</label>
+                                        <input type="text" th:field="*{passengers[__${stat.index}__].fullName}"
+                                               class="form-control" placeholder="As per Govt ID" required>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label small fw-bold">Age *</label>
+                                        <input type="number" th:field="*{passengers[__${stat.index}__].age}"
+                                               class="form-control" min="1" max="120" placeholder="Years" required>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label small fw-bold">Gender *</label>
+                                        <select th:field="*{passengers[__${stat.index}__].gender}" class="form-select" required>
+                                            <option value="MALE">Male</option>
+                                            <option value="FEMALE">Female</option>
+                                            <option value="OTHER">Other</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label small fw-bold">Berth Preference</label>
+                                        <select th:field="*{passengers[__${stat.index}__].berthPreference}" class="form-select">
+                                            <option th:each="pref : ${berthPreferences}"
+                                                    th:value="${pref}"
+                                                    th:text="${pref.displayName}">
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="small text-muted mt-2">
+                            <i class="bi bi-info-circle me-1"></i> You can add up to 6 passengers per reservation. Berth allocation is subject to availability.
+                        </div>
+                    </div>
+
+                    <!-- Simulated Payment Method Selection -->
+                    <div class="card shadow-sm border-0 rounded-4 p-4 bg-white">
+                        <h5 class="fw-bold mb-3 text-dark">
+                            <i class="bi bi-credit-card-2-front text-primary me-2"></i>Select Payment Method
+                        </h5>
+                        <div class="row g-3">
+                            <div th:each="mode : ${paymentModes}" class="col-md-6">
+                                <div class="form-check p-3 border rounded-3 h-100">
+                                    <input class="form-check-input ms-0 me-2" type="radio" th:field="*{paymentMode}" th:value="${mode}" th:id="${'mode_' + mode}">
+                                    <label class="form-check-label fw-bold" th:for="${'mode_' + mode}" th:text="${mode.displayName}">
+                                        UPI
+                                    </label>
+                                    <div class="small text-muted ms-4">Instant simulated verification</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Educational Disclaimer Alert -->
+                        <div class="alert alert-info d-flex align-items-center mt-3 mb-0 small" role="alert">
+                            <i class="bi bi-info-circle-fill fs-5 me-2 text-info"></i>
+                            <div>
+                                <strong>Simulated Transaction:</strong> This booking uses a simulated payment processor for academic and demonstration purposes. No real bank accounts or credit cards are charged.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Live Fare Breakdown & Confirmation -->
+                <div class="col-lg-4">
+                    <div class="card shadow-sm border-0 rounded-4 p-4 bg-white sticky-top" style="top: 90px;">
+                        <h5 class="fw-bold mb-3 text-dark">Fare Summary</h5>
+
+                        <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+                            <span class="text-muted">Base Fare per Person</span>
+                            <span id="baseFarePerPassenger" class="fw-bold"
+                                  th:data-fare="${classConfig.baseFare}"
+                                  th:text="'₹ ' + ${classConfig.baseFare}">₹ 1,165.00</span>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+                            <span class="text-muted">Number of Passengers</span>
+                            <span id="livePassengerCount" class="fw-bold">1</span>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+                            <span class="text-muted">Reservation & IRCTC Fee</span>
+                            <span class="text-success fw-bold">FREE (₹ 0.00)</span>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mb-4 pt-2">
+                            <span class="fs-5 fw-bold text-dark">Total Amount</span>
+                            <span id="liveTotalFare" class="fs-4 fw-bold text-primary"
+                                  th:text="'₹ ' + ${classConfig.baseFare}">₹ 1,165.00</span>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 py-3 fw-bold fs-6" style="background-color: #0077B6; border-color: #0077B6;">
+                            <i class="bi bi-shield-check me-2"></i> Pay & Book Ticket
+                        </button>
+
+                        <div class="text-center mt-3 text-muted" style="font-size: 0.75rem;">
+                            By continuing, you agree to the RailBook simulated reservation terms and cancellation refund rules.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</main>
+
+<footer th:replace="~{layout/footer :: footer}"></footer>
+
+</body>
+</html>

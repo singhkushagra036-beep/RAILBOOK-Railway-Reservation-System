@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/header :: head('My Bookings & Reservations')}"></head>
+<body class="bg-light">
+
+<nav th:replace="~{layout/header :: navbar}"></nav>
+
+<main class="py-5">
+    <div class="container">
+        <!-- Flash Message Alerts -->
+        <div th:if="${cancelSuccess}" class="alert alert-success d-flex align-items-center mb-4" role="alert">
+            <i class="bi bi-check-circle-fill me-2 fs-5"></i>
+            <span th:text="${cancelSuccess}">Cancellation successful</span>
+        </div>
+        <div th:if="${cancelError}" class="alert alert-danger d-flex align-items-center mb-4" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+            <span th:text="${cancelError}">Cancellation error</span>
+        </div>
+
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h4 class="fw-bold mb-0 text-dark">My Reservation History</h4>
+                <div class="text-muted small">View, print, download PDF or cancel your train tickets.</div>
+            </div>
+            <a th:href="@{/search}" class="btn btn-primary btn-sm fw-bold" style="background-color: #0077B6;">
+                <i class="bi bi-plus-circle me-1"></i> Book Another Train
+            </a>
+        </div>
+
+        <!-- Empty State -->
+        <div th:if="${bookings.isEmpty()}" class="card border-0 shadow-sm rounded-4 p-5 text-center bg-white">
+            <i class="bi bi-ticket-detailed display-3 text-muted opacity-50 mb-3"></i>
+            <h4 class="fw-bold text-dark">No Reservations Found</h4>
+            <p class="text-muted small">You haven't booked any train tickets yet.</p>
+            <a th:href="@{/search}" class="btn btn-primary btn-sm fw-bold mx-auto">Start Searching Trains</a>
+        </div>
+
+        <!-- Bookings Cards / Table -->
+        <div th:unless="${bookings.isEmpty()}" class="card border-0 shadow-sm rounded-4 bg-white overflow-hidden">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light small">
+                        <tr>
+                            <th>PNR</th>
+                            <th>Train No. & Name</th>
+                            <th>Route</th>
+                            <th>Class</th>
+                            <th>Date & Time</th>
+                            <th>Passengers</th>
+                            <th>Total Fare</th>
+                            <th>Status</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="b : ${bookings}">
+                            <td>
+                                <strong class="text-primary font-monospace fs-6" th:text="${b.pnrNumber}">4920194821</strong>
+                            </td>
+                            <td>
+                                <div class="fw-bold" th:text="${b.train.trainNumber}">12004</div>
+                                <div class="small text-muted" th:text="${b.train.trainName}">Lucknow Shatabdi</div>
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark border" th:text="${b.train.sourceStation.stationCode}">NDLS</span>
+                                <i class="bi bi-arrow-right mx-1 text-primary"></i>
+                                <span class="badge bg-light text-dark border" th:text="${b.train.destinationStation.stationCode}">LKO</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-secondary-subtle text-secondary fw-semibold" th:text="${b.travelClass.code}">CC</span>
+                            </td>
+                            <td>
+                                <div class="fw-bold" th:text="${#temporals.format(b.journeyDate, 'dd-MMM-yyyy')}">20-Nov-2026</div>
+                                <div class="small text-muted" th:text="${#temporals.format(b.train.departureTime, 'HH:mm')} + ' hrs'">06:00 hrs</div>
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark border" th:text="${b.passengers.size()} + ' Seats'">1 Seat</span>
+                            </td>
+                            <td>
+                                <strong class="text-success" th:text="'₹ ' + ${b.totalFare}">₹ 1,165</strong>
+                            </td>
+                            <td>
+                                <span th:if="${b.bookingStatus.name() == 'CONFIRMED'}" class="badge bg-success-subtle text-success fw-bold">
+                                    CONFIRMED
+                                </span>
+                                <span th:if="${b.bookingStatus.name() == 'CANCELLED'}" class="badge bg-danger-subtle text-danger fw-bold">
+                                    CANCELLED
+                                </span>
+                            </td>
+                            <td class="text-end">
+                                <div class="d-flex justify-content-end gap-1">
+                                    <a th:href="@{/ticket/{pnr}(pnr=${b.pnrNumber})}" class="btn btn-sm btn-outline-primary" title="View E-Ticket">
+                                        <i class="bi bi-printer"></i>
+                                    </a>
+                                    <a th:href="@{/ticket/{pnr}/pdf(pnr=${b.pnrNumber})}" class="btn btn-sm btn-outline-danger" title="Download PDF">
+                                        <i class="bi bi-file-earmark-pdf"></i>
+                                    </a>
+                                    <!-- Cancel Button if Confirmed -->
+                                    <button th:if="${b.bookingStatus.name() == 'CONFIRMED'}"
+                                            type="button" class="btn btn-sm btn-outline-danger"
+                                            data-bs-toggle="modal"
+                                            th:data-bs-target="'#cancelModal-' + ${b.pnrNumber}" title="Cancel Ticket">
+                                        <i class="bi bi-x-circle"></i> Cancel
+                                    </button>
+                                </div>
+
+                                <!-- Cancellation Modal -->
+                                <div th:if="${b.bookingStatus.name() == 'CONFIRMED'}"
+                                     class="modal fade text-start" th:id="'cancelModal-' + ${b.pnrNumber}" tabindex="-1" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header bg-danger text-white">
+                                                <h5 class="modal-title fw-bold">
+                                                    <i class="bi bi-exclamation-triangle-fill me-1"></i> Confirm Ticket Cancellation
+                                                </h5>
+                                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <form th:action="@{/cancel-ticket}" method="post">
+                                                <input type="hidden" name="pnr" th:value="${b.pnrNumber}">
+                                                <div class="modal-body">
+                                                    <p>Are you sure you want to cancel ticket for PNR <strong class="text-primary font-monospace" th:text="${b.pnrNumber}">4920194821</strong>?</p>
+                                                    <div class="p-3 bg-light rounded-3 border small mb-3">
+                                                        <div class="d-flex justify-content-between mb-1">
+                                                            <span class="text-muted">Train:</span>
+                                                            <span class="fw-bold" th:text="${b.train.trainNumber} + ' - ' + ${b.train.trainName}">Train</span>
+                                                        </div>
+                                                        <div class="d-flex justify-content-between mb-1">
+                                                            <span class="text-muted">Total Fare Paid:</span>
+                                                            <span class="fw-bold text-success" th:text="'₹ ' + ${b.totalFare}">₹ 1,165</span>
+                                                        </div>
+                                                        <div class="d-flex justify-content-between">
+                                                            <span class="text-muted">Simulated Refund Policy:</span>
+                                                            <span class="text-primary fw-semibold">Up to 80% refundable</span>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="mb-3">
+                                                        <label class="form-label small fw-bold">Reason for Cancellation (Optional)</label>
+                                                        <input type="text" name="reason" class="form-control form-control-sm" placeholder="e.g. Change of travel plans">
+                                                    </div>
+
+                                                    <div class="alert alert-warning small p-2 mb-0">
+                                                        <i class="bi bi-info-circle me-1"></i> Once cancelled, your reserved seats will be released back into inventory immediately.
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Keep Booking</button>
+                                                    <button type="submit" class="btn btn-danger btn-sm fw-bold">Yes, Cancel Ticket</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{layout/footer :: footer}"></footer>
+
+</body>
+</html>

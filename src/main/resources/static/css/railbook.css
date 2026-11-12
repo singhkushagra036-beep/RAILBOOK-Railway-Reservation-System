@@ -1,0 +1,507 @@
+/* ==========================================================================
+   RAILBOOK - Modern Railway Reservation System CSS Theme
+   Palette: Premium Navy Blue, Deep Ocean, Clean White & Ice Slate
+   ========================================================================== */
+
+:root {
+    --rb-primary: #0B2545;
+    --rb-primary-light: #134074;
+    --rb-secondary: #0077B6;
+    --rb-accent: #00B4D8;
+    --rb-dark: #1D2D44;
+    --rb-light-bg: #F4F7FB;
+    --rb-card-bg: #FFFFFF;
+    --rb-surface-border: #E2E8F0;
+    --rb-text-main: #1E293B;
+    --rb-text-muted: #64748B;
+    --rb-success: #10B981;
+    --rb-danger: #EF4444;
+    --rb-warning: #F59E0B;
+    --rb-font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --rb-shadow-sm: 0 1px 3px rgba(11, 37, 69, 0.06);
+    --rb-shadow-md: 0 4px 14px rgba(11, 37, 69, 0.08);
+    --rb-shadow-lg: 0 10px 25px rgba(11, 37, 69, 0.12);
+}
+
+body {
+    font-family: var(--rb-font-family);
+    color: var(--rb-text-main);
+    background-color: var(--rb-light-bg);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1 0 auto;
+}
+
+/* Navbar */
+.navbar-railbook {
+    background: linear-gradient(135deg, var(--rb-primary) 0%, var(--rb-primary-light) 100%);
+    box-shadow: 0 2px 10px rgba(11, 37, 69, 0.2);
+    padding: 0.8rem 1rem;
+}
+
+.navbar-railbook .navbar-brand {
+    font-weight: 800;
+    font-size: 1.45rem;
+    letter-spacing: -0.5px;
+    color: #FFFFFF !important;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.navbar-railbook .navbar-brand i {
+    color: var(--rb-accent);
+}
+
+.navbar-railbook .nav-link {
+    color: rgba(255, 255, 255, 0.85) !important;
+    font-weight: 500;
+    font-size: 0.95rem;
+    padding: 0.5rem 0.9rem !important;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.navbar-railbook .nav-link:hover,
+.navbar-railbook .nav-link.active {
+    color: #FFFFFF !important;
+    background-color: rgba(255, 255, 255, 0.12);
+}
+
+.navbar-railbook .btn-nav-action {
+    background-color: var(--rb-accent);
+    color: var(--rb-primary) !important;
+    font-weight: 600;
+    border-radius: 6px;
+    padding: 0.45rem 1rem;
+    transition: all 0.2s ease;
+}
+
+.navbar-railbook .btn-nav-action:hover {
+    background-color: #48CAE4;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(0, 180, 216, 0.3);
+}
+
+/* Hero Section */
+.hero-section {
+    background: linear-gradient(135deg, #0B2545 0%, #134074 50%, #0077B6 100%);
+    color: #FFFFFF;
+    padding: 3.5rem 0 4.5rem 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(circle at 80% 20%, rgba(0, 180, 216, 0.15) 0%, transparent 60%);
+    pointer-events: none;
+}
+
+.hero-title {
+    font-size: 2.75rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.2;
+}
+
+.hero-subtitle {
+    font-size: 1.15rem;
+    color: rgba(255, 255, 255, 0.85);
+    margin-bottom: 2rem;
+}
+
+/* Search Card Widget */
+.search-widget-card {
+    background: #FFFFFF;
+    border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(11, 37, 69, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: var(--rb-text-main);
+    padding: 1.75rem;
+    position: relative;
+    z-index: 10;
+}
+
+.search-widget-card .form-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--rb-text-muted);
+    margin-bottom: 0.3rem;
+}
+
+.search-widget-card .form-control,
+.search-widget-card .form-select {
+    border: 1.5px solid #CBD5E1;
+    border-radius: 8px;
+    padding: 0.65rem 0.85rem;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.search-widget-card .form-control:focus,
+.search-widget-card .form-select:focus {
+    border-color: var(--rb-secondary);
+    box-shadow: 0 0 0 3px rgba(0, 119, 182, 0.15);
+}
+
+.btn-swap-stations {
+    background-color: #EEF4F8;
+    color: var(--rb-secondary);
+    border: 1px solid #CBD5E1;
+    border-radius: 50%;
+    width: 38px;
+    height: 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-swap-stations:hover {
+    background-color: var(--rb-secondary);
+    color: #FFFFFF;
+    transform: rotate(180deg);
+}
+
+.btn-search-trains {
+    background: linear-gradient(135deg, var(--rb-secondary) 0%, var(--rb-primary-light) 100%);
+    color: #FFFFFF;
+    font-weight: 700;
+    font-size: 1.05rem;
+    border: none;
+    border-radius: 8px;
+    padding: 0.75rem 1.75rem;
+    transition: all 0.25s ease;
+}
+
+.btn-search-trains:hover {
+    background: linear-gradient(135deg, #0088D1 0%, var(--rb-primary) 100%);
+    color: #FFFFFF;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0, 119, 182, 0.35);
+}
+
+/* Feature & Metric Cards */
+.feature-card {
+    background: #FFFFFF;
+    border-radius: 12px;
+    border: 1px solid var(--rb-surface-border);
+    padding: 1.75rem;
+    transition: all 0.25s ease;
+    height: 100%;
+}
+
+.feature-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--rb-shadow-lg);
+    border-color: #CBD5E1;
+}
+
+.feature-icon-wrapper {
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
+    background: #EEF4F8;
+    color: var(--rb-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-bottom: 1.25rem;
+}
+
+/* Train Search Result Cards */
+.train-card {
+    background: #FFFFFF;
+    border-radius: 12px;
+    border: 1px solid var(--rb-surface-border);
+    box-shadow: var(--rb-shadow-sm);
+    margin-bottom: 1.25rem;
+    transition: all 0.2s ease;
+    overflow: hidden;
+}
+
+.train-card:hover {
+    box-shadow: var(--rb-shadow-md);
+    border-color: #94A3B8;
+}
+
+.train-card-header {
+    background-color: #F8FAFC;
+    border-bottom: 1px solid var(--rb-surface-border);
+    padding: 0.9rem 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.train-type-badge {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 0.25rem 0.6rem;
+    border-radius: 4px;
+    letter-spacing: 0.05em;
+}
+
+.train-card-body {
+    padding: 1.25rem;
+}
+
+.train-timing-block {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    text-align: center;
+    padding: 0.5rem 0;
+}
+
+.train-time {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: var(--rb-primary);
+}
+
+.train-station-code {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--rb-text-muted);
+}
+
+.train-duration-indicator {
+    position: relative;
+    padding: 0 1.5rem;
+    flex: 1;
+}
+
+.train-duration-line {
+    height: 2px;
+    background: #CBD5E1;
+    position: relative;
+    margin: 8px 0;
+}
+
+.train-duration-line::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: -4px;
+    width: 10px;
+    height: 10px;
+    border-top: 2px solid #64748B;
+    border-right: 2px solid #64748B;
+    transform: rotate(45deg);
+}
+
+/* Class Availability Pills */
+.class-pill {
+    border: 1.5px solid var(--rb-surface-border);
+    border-radius: 10px;
+    padding: 0.65rem 0.85rem;
+    background: #FFFFFF;
+    transition: all 0.2s ease;
+    display: block;
+    text-decoration: none;
+    color: inherit;
+}
+
+.class-pill:hover {
+    border-color: var(--rb-secondary);
+    background: #F0F9FF;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 119, 182, 0.1);
+}
+
+.class-pill.sold-out {
+    background: #FEF2F2;
+    border-color: #FECACA;
+    opacity: 0.75;
+}
+
+.class-pill .class-name {
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--rb-primary);
+}
+
+.class-pill .class-fare {
+    font-weight: 800;
+    font-size: 1rem;
+    color: var(--rb-secondary);
+}
+
+.class-pill .class-seats {
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.class-seats.avail {
+    color: #059669;
+}
+
+.class-seats.not-avail {
+    color: #DC2626;
+}
+
+/* Authentic Railway E-Ticket Styling */
+.e-ticket-container {
+    background: #FFFFFF;
+    border: 2px solid #0B2545;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(11, 37, 69, 0.12);
+    padding: 2.25rem;
+    position: relative;
+    max-width: 860px;
+    margin: 2rem auto;
+    background-image: radial-gradient(rgba(11, 37, 69, 0.02) 1px, transparent 0);
+    background-size: 24px 24px;
+}
+
+.e-ticket-header {
+    border-bottom: 2px solid #0B2545;
+    padding-bottom: 1.25rem;
+    margin-bottom: 1.5rem;
+}
+
+.e-ticket-pnr-banner {
+    background: #EEF4F8;
+    border: 1px dashed var(--rb-secondary);
+    border-radius: 8px;
+    padding: 0.75rem 1.25rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.pnr-display {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 1.4rem;
+    font-weight: 800;
+    letter-spacing: 2px;
+    color: var(--rb-primary);
+}
+
+.e-ticket-watermark {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-30deg);
+    font-size: 4.5rem;
+    font-weight: 900;
+    color: rgba(11, 37, 69, 0.04);
+    letter-spacing: 0.2em;
+    pointer-events: none;
+    user-select: none;
+    z-index: 1;
+}
+
+.ticket-table th {
+    background-color: var(--rb-primary);
+    color: #FFFFFF;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 0.65rem 0.85rem;
+}
+
+.ticket-table td {
+    padding: 0.65rem 0.85rem;
+    font-size: 0.9rem;
+    vertical-align: middle;
+}
+
+/* Dashboard Metric Cards */
+.stat-card {
+    background: #FFFFFF;
+    border-radius: 12px;
+    border: 1px solid var(--rb-surface-border);
+    padding: 1.5rem;
+    box-shadow: var(--rb-shadow-sm);
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+}
+
+.stat-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+    flex-shrink: 0;
+}
+
+.stat-val {
+    font-size: 1.85rem;
+    font-weight: 800;
+    line-height: 1.1;
+    color: var(--rb-primary);
+}
+
+.stat-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--rb-text-muted);
+}
+
+/* Footer */
+.footer-railbook {
+    background: #0B2545;
+    color: #CBD5E1;
+    padding: 3rem 0 1.5rem 0;
+    margin-top: auto;
+    font-size: 0.9rem;
+}
+
+.footer-railbook h5 {
+    color: #FFFFFF;
+    font-weight: 700;
+    font-size: 1rem;
+    margin-bottom: 1.2rem;
+}
+
+.footer-railbook a {
+    color: #94A3B8;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.footer-railbook a:hover {
+    color: var(--rb-accent);
+}
+
+/* Print Media Query */
+@media print {
+    body {
+        background-color: #FFFFFF !important;
+        color: #000000 !important;
+    }
+    .navbar-railbook,
+    .footer-railbook,
+    .no-print,
+    .btn,
+    .alert {
+        display: none !important;
+    }
+    .e-ticket-container {
+        border: 2px solid #000000 !important;
+        box-shadow: none !important;
+        margin: 0 !important;
+        padding: 1rem !important;
+        max-width: 100% !important;
+    }
+}

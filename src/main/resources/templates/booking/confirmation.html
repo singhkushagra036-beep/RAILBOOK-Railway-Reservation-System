@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/header :: head('Booking Confirmed')}"></head>
+<body class="bg-light">
+
+<nav th:replace="~{layout/header :: navbar}"></nav>
+
+<main class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <!-- Confirmation Success Card -->
+                <div class="card shadow-lg border-0 rounded-4 overflow-hidden bg-white text-center p-4 p-md-5">
+                    <div class="mb-3">
+                        <div class="d-inline-flex p-3 rounded-circle bg-success bg-opacity-10 text-success">
+                            <i class="bi bi-check-circle-fill display-4"></i>
+                        </div>
+                    </div>
+
+                    <h2 class="fw-bold text-dark mb-1">Booking Confirmed!</h2>
+                    <p class="text-muted mb-4">Your train reservation has been successfully processed and seats are confirmed.</p>
+
+                    <!-- PNR Highlight Box -->
+                    <div class="p-3 rounded-3 bg-light border border-2 border-primary mb-4 d-inline-block mx-auto" style="min-width: 320px;">
+                        <div class="text-muted small text-uppercase fw-bold letter-spacing-1">Your PNR Number</div>
+                        <div class="pnr-display my-1 text-primary" th:text="${booking.pnrNumber}">4920194820</div>
+                        <span class="badge bg-success px-3 py-1">CONFIRMED</span>
+                    </div>
+
+                    <!-- Journey Quick Glance Table -->
+                    <div class="table-responsive text-start mb-4">
+                        <table class="table table-bordered align-middle">
+                            <tbody class="small">
+                                <tr>
+                                    <th class="bg-light text-muted" style="width: 25%;">Train</th>
+                                    <td>
+                                        <strong th:text="${booking.train.trainNumber} + ' - ' + ${booking.train.trainName}">12004 - Shatabdi Express</strong>
+                                        <span class="badge bg-secondary-subtle text-secondary ms-1" th:text="${booking.travelClass.displayName}">AC Chair Car</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th class="bg-light text-muted">Route</th>
+                                    <td>
+                                        <span th:text="${booking.train.sourceStation.formattedDisplay}">NDLS</span>
+                                        <i class="bi bi-arrow-right mx-1 text-primary"></i>
+                                        <span th:text="${booking.train.destinationStation.formattedDisplay}">LKO</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th class="bg-light text-muted">Date & Time</th>
+                                    <td>
+                                        <strong th:text="${#temporals.format(booking.journeyDate, 'dd-MMM-yyyy')}">20-Nov-2026</strong>,
+                                        Departs at <strong th:text="${#temporals.format(booking.train.departureTime, 'HH:mm')} + ' hrs'">06:00 hrs</strong>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th class="bg-light text-muted">Passengers</th>
+                                    <td>
+                                        <div th:each="p, stat : ${booking.passengers}" class="mb-1">
+                                            <span th:text="${p.fullName} + ' (' + ${p.age} + '/' + ${p.gender} + ')'">John Doe</span>
+                                            — <span class="badge bg-primary-subtle text-primary fw-bold" th:text="'Seat: ' + ${p.seatNumber} + ' (' + ${p.allocatedBerth} + ')'">Seat: C1-14 (Window)</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th class="bg-light text-muted">Total Paid</th>
+                                    <td class="fw-bold text-success fs-6" th:text="'₹ ' + ${booking.totalFare}">₹ 1,165.00</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-flex flex-wrap justify-content-center gap-3">
+                        <a th:href="@{/ticket/{pnr}(pnr=${booking.pnrNumber})}" class="btn btn-primary px-4 py-2 fw-bold" style="background-color: #0077B6; border-color: #0077B6;">
+                            <i class="bi bi-printer me-1"></i> View & Print E-Ticket
+                        </a>
+                        <a th:href="@{/ticket/{pnr}/pdf(pnr=${booking.pnrNumber})}" class="btn btn-outline-danger px-4 py-2 fw-bold">
+                            <i class="bi bi-file-earmark-pdf me-1"></i> Download PDF
+                        </a>
+                        <a th:href="@{/dashboard}" class="btn btn-outline-secondary px-4 py-2 fw-semibold">
+                            <i class="bi bi-speedometer2 me-1"></i> Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{layout/footer :: footer}"></footer>
+
+</body>
+</html>

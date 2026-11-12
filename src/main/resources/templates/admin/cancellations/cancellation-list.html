@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/header :: head('Ticket Cancellations Audit')}"></head>
+<body class="bg-light">
+
+<nav th:replace="~{layout/header :: navbar}"></nav>
+
+<main class="py-5">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <a th:href="@{/admin/dashboard}" class="text-decoration-none small text-muted">
+                    <i class="bi bi-arrow-left"></i> Back to Dashboard
+                </a>
+                <h4 class="fw-bold mb-0 text-dark">Ticket Cancellations & Refund Audit</h4>
+            </div>
+            <span class="badge bg-danger fs-6 px-3 py-2" th:text="${cancellations.size()} + ' Total Cancellations'">0</span>
+        </div>
+
+        <div class="card border-0 shadow-sm rounded-4 bg-white overflow-hidden">
+            <div th:if="${cancellations.isEmpty()}" class="p-5 text-center text-muted">
+                <i class="bi bi-shield-check fs-1 text-success opacity-50 mb-2"></i>
+                <h5 class="fw-bold text-dark">No Cancellations Recorded</h5>
+                <p class="small text-muted mb-0">No tickets have been cancelled on the system yet.</p>
+            </div>
+
+            <div th:unless="${cancellations.isEmpty()}" class="table-responsive">
+                <table class="table table-hover align-middle mb-0 small">
+                    <thead class="table-light">
+                        <tr>
+                            <th>PNR</th>
+                            <th>Passenger Account</th>
+                            <th>Cancellation Date</th>
+                            <th>Total Ticket Value</th>
+                            <th>Refund Amount</th>
+                            <th>Cancellation Charge</th>
+                            <th>Reason</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="c : ${cancellations}">
+                            <td><strong class="text-primary font-monospace" th:text="${c.booking.pnrNumber}">4829104821</strong></td>
+                            <td>
+                                <div class="fw-bold" th:text="${c.booking.user.fullName}">User</div>
+                                <div class="text-muted" style="font-size: 0.75rem;" th:text="${c.booking.user.email}">email</div>
+                            </td>
+                            <td th:text="${#temporals.format(c.cancellationDate, 'dd-MMM-yyyy HH:mm')}">Date</td>
+                            <td th:text="'₹ ' + ${c.booking.totalFare}">₹ 1,165</td>
+                            <td><strong class="text-success" th:text="'₹ ' + ${c.refundAmount}">₹ 932.00</strong></td>
+                            <td><span class="text-danger" th:text="'₹ ' + ${c.cancellationCharge}">₹ 233.00</span></td>
+                            <td th:text="${c.cancellationReason}">Change of plan</td>
+                            <td>
+                                <span class="badge bg-secondary" th:text="${c.refundStatus}">SIMULATED_PROCESSED</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{layout/footer :: footer}"></footer>
+
+</body>
+</html>

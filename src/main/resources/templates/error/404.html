@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/header :: head('404 - Page Not Found')}"></head>
+<body class="bg-light">
+
+<nav th:replace="~{layout/header :: navbar}"></nav>
+
+<main class="py-5">
+    <div class="container text-center py-5">
+        <div class="mb-4">
+            <i class="bi bi-compass text-primary display-1"></i>
+        </div>
+        <h1 class="display-5 fw-bold text-dark">404 – Destination Not Found</h1>
+        <p class="text-muted fs-5 max-w-600 mx-auto mb-4" th:text="${errorMessage}">
+            The railway page, schedule, or reservation you are searching for does not exist or has been relocated.
+        </p>
+        <div class="d-flex justify-content-center gap-3">
+            <a th:href="@{/}" class="btn btn-primary px-4 fw-bold" style="background-color: #0077B6;">
+                <i class="bi bi-house-door me-1"></i> Return to Homepage
+            </a>
+            <a th:href="@{/search}" class="btn btn-outline-primary px-4 fw-semibold">
+                <i class="bi bi-search me-1"></i> Search Trains
+            </a>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{layout/footer :: footer}"></footer>
+
+</body>
+</html>

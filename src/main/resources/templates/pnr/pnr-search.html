@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/header :: head('PNR Status Enquiry')}"></head>
+<body class="bg-light">
+
+<nav th:replace="~{layout/header :: navbar}"></nav>
+
+<main class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-7 col-lg-6">
+                <!-- PNR Search Card -->
+                <div class="card shadow-lg border-0 rounded-4 overflow-hidden bg-white">
+                    <div class="card-header bg-primary text-white text-center py-4" style="background: linear-gradient(135deg, #0B2545 0%, #134074 100%) !important;">
+                        <i class="bi bi-ticket-perforated-fill fs-1 text-info"></i>
+                        <h4 class="fw-bold mt-2 mb-0">PNR Status Enquiry</h4>
+                        <p class="small text-white-50 mb-0">Track real-time railway reservation status</p>
+                    </div>
+
+                    <div class="card-body p-4 p-md-5">
+                        <!-- Error Alert if any -->
+                        <div th:if="${errorMessage}" class="alert alert-danger d-flex align-items-center small mb-4" role="alert">
+                            <i class="bi bi-exclamation-circle-fill me-2 fs-5"></i>
+                            <span th:text="${errorMessage}">Invalid PNR</span>
+                        </div>
+
+                        <form th:action="@{/pnr-status}" method="get">
+                            <div class="mb-4">
+                                <label for="pnrInput" class="form-label small fw-bold text-uppercase text-muted">
+                                    Enter 10-Digit PNR Number
+                                </label>
+                                <div class="input-group input-group-lg">
+                                    <span class="input-group-text bg-light text-primary"><i class="bi bi-search"></i></span>
+                                    <input type="text" id="pnrInput" name="pnr" class="form-control fw-bold"
+                                           placeholder="e.g. 4829104821"
+                                           th:value="${searchedPnr}"
+                                           maxlength="10" pattern="[0-9]{10}"
+                                           title="Please enter a 10-digit numeric PNR" required autofocus>
+                                </div>
+                                <div class="form-text small text-muted">
+                                    Check your booking confirmation or SMS for the 10-digit number.
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-100 py-3 fw-bold fs-6" style="background-color: #0077B6; border-color: #0077B6;">
+                                <i class="bi bi-check2-circle me-1"></i> Get PNR Status
+                            </button>
+                        </form>
+
+                        <!-- PNR Explanation Card -->
+                        <div class="mt-4 p-3 rounded-3 bg-light border small text-muted">
+                            <div class="fw-bold text-dark mb-1">
+                                <i class="bi bi-question-circle text-primary me-1"></i> What is a PNR Number?
+                            </div>
+                            Passenger Name Record (PNR) is a unique 10-digit identifier assigned to your booking. It stores your itinerary, passenger names, coach, seat numbers, and journey details.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{layout/footer :: footer}"></footer>
+
+</body>
+</html>

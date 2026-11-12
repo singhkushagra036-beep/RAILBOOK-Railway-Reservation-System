@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/header :: head('Sign In')}"></head>
+<body class="bg-light">
+
+<nav th:replace="~{layout/header :: navbar}"></nav>
+
+<main class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5">
+                <!-- Login Card -->
+                <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+                    <div class="card-header bg-primary text-white text-center py-4" style="background: linear-gradient(135deg, #0B2545 0%, #134074 100%) !important;">
+                        <i class="bi bi-person-circle fs-1 text-info"></i>
+                        <h4 class="fw-bold mt-2 mb-0">Sign In to RailBook</h4>
+                        <p class="small text-white-50 mb-0">Manage reservations, book tickets & check PNR</p>
+                    </div>
+
+                    <div class="card-body p-4 p-md-5">
+                        <!-- Alert Messages -->
+                        <div th:if="${errorMessage}" class="alert alert-danger d-flex align-items-center small" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+                            <span th:text="${errorMessage}">Invalid credentials</span>
+                        </div>
+                        <div th:if="${successMessage}" class="alert alert-success d-flex align-items-center small" role="alert">
+                            <i class="bi bi-check-circle-fill me-2 fs-5"></i>
+                            <span th:text="${successMessage}">Logged out successfully</span>
+                        </div>
+
+                        <!-- Login Form -->
+                        <form th:action="@{/login}" method="post">
+                            <div class="mb-3">
+                                <label for="email" class="form-label small fw-bold">Email Address</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="bi bi-envelope"></i></span>
+                                    <input type="email" id="email" name="email" class="form-control" placeholder="name@example.com" required autofocus>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="password" class="form-label small fw-bold">Password</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="bi bi-lock"></i></span>
+                                    <input type="password" id="password" name="password" class="form-control" placeholder="••••••••" required>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-100 py-2 fw-bold" style="background-color: #0077B6; border-color: #0077B6;">
+                                <i class="bi bi-box-arrow-in-right me-1"></i> Sign In
+                            </button>
+                        </form>
+
+                        <!-- Demo Credentials Helper -->
+                        <div class="mt-4 p-3 bg-light rounded-3 border">
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <span class="small fw-bold text-uppercase text-muted">Demo Credentials:</span>
+                                <span class="badge bg-warning-subtle text-dark border">Dev Mode</span>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button type="button" class="btn btn-sm btn-outline-dark flex-fill" onclick="fillDemoLogin('admin')">
+                                    <i class="bi bi-shield-lock me-1"></i> Admin (admin@railbook.com)
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-primary flex-fill" onclick="fillDemoLogin('user')">
+                                    <i class="bi bi-person me-1"></i> User (user@railbook.com)
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="text-center mt-4 small">
+                            Don't have an account?
+                            <a th:href="@{/register}" class="fw-bold text-decoration-none text-primary">Register Here</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{layout/footer :: footer}"></footer>
+
+</body>
+</html>

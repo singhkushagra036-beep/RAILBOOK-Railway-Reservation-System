@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/header :: head('PNR Status - ' + ${booking.pnrNumber})}"></head>
+<body class="bg-light">
+
+<nav th:replace="~{layout/header :: navbar}"></nav>
+
+<main class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-9">
+                <!-- Action / Back Toolbar -->
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <a th:href="@{/pnr}" class="btn btn-outline-secondary btn-sm">
+                        <i class="bi bi-search me-1"></i> Check Another PNR
+                    </a>
+                    <div class="d-flex gap-2">
+                        <a th:href="@{/ticket/{pnr}(pnr=${booking.pnrNumber})}" class="btn btn-primary btn-sm fw-bold" style="background-color: #0077B6;">
+                            <i class="bi bi-printer me-1"></i> View E-Ticket
+                        </a>
+                        <a th:href="@{/ticket/{pnr}/pdf(pnr=${booking.pnrNumber})}" class="btn btn-danger btn-sm fw-bold">
+                            <i class="bi bi-file-earmark-pdf me-1"></i> Download PDF
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Main Status Card -->
+                <div class="card shadow-sm border-0 rounded-4 overflow-hidden bg-white mb-4">
+                    <!-- Status Header -->
+                    <div class="card-header bg-primary text-white p-4" style="background: linear-gradient(135deg, #0B2545 0%, #134074 100%) !important;">
+                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                            <div>
+                                <span class="small text-white-50 text-uppercase fw-bold letter-spacing-1">PNR ENQUIRY</span>
+                                <h3 class="fw-bold mb-0 text-white" th:text="${booking.pnrNumber}">4829104821</h3>
+                            </div>
+                            <div>
+                                <span th:if="${booking.bookingStatus.name() == 'CONFIRMED'}" class="badge bg-success fs-6 px-3 py-2">
+                                    <i class="bi bi-check-circle-fill me-1"></i> CONFIRMED
+                                </span>
+                                <span th:if="${booking.bookingStatus.name() == 'CANCELLED'}" class="badge bg-danger fs-6 px-3 py-2">
+                                    <i class="bi bi-x-circle-fill me-1"></i> CANCELLED
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-body p-4">
+                        <!-- Train Overview -->
+                        <div class="row g-3 align-items-center mb-4 p-3 rounded-3 bg-light">
+                            <div class="col-md-5">
+                                <span class="badge bg-dark mb-1" th:text="${booking.train.trainNumber}">12004</span>
+                                <h5 class="fw-bold text-dark mb-1" th:text="${booking.train.trainName}">Lucknow Shatabdi</h5>
+                                <div class="small text-muted">
+                                    Class: <strong class="text-primary" th:text="${booking.travelClass.displayName}">AC Chair Car</strong>
+                                </div>
+                            </div>
+                            <div class="col-md-7">
+                                <div class="d-flex justify-content-between text-center">
+                                    <div>
+                                        <div class="text-muted small">Origin</div>
+                                        <div class="fw-bold" th:text="${booking.train.sourceStation.stationName}">New Delhi</div>
+                                        <div class="small text-primary fw-bold" th:text="${#temporals.format(booking.train.departureTime, 'HH:mm')} + ' hrs'">06:00</div>
+                                    </div>
+                                    <div class="px-2">
+                                        <div class="small text-muted" th:text="${booking.train.durationHours}">06h 30m</div>
+                                        <i class="bi bi-arrow-right fs-4 text-secondary"></i>
+                                        <div class="small text-muted" th:text="${#temporals.format(booking.journeyDate, 'dd-MMM-yyyy')}">20-Nov-2026</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-muted small">Destination</div>
+                                        <div class="fw-bold" th:text="${booking.train.destinationStation.stationName}">Lucknow</div>
+                                        <div class="small text-primary fw-bold" th:text="${#temporals.format(booking.train.arrivalTime, 'HH:mm')} + ' hrs'">12:30</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Passenger Status Table -->
+                        <h6 class="fw-bold text-dark mb-3">Passenger & Seat Allocation Status</h6>
+                        <div class="table-responsive mb-4">
+                            <table class="table table-bordered align-middle text-center">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>#</th>
+                                        <th class="text-start">Passenger Name</th>
+                                        <th>Age / Gender</th>
+                                        <th>Booking Status</th>
+                                        <th>Coach & Seat</th>
+                                        <th>Berth Type</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="p, stat : ${booking.passengers}">
+                                        <td th:text="${stat.index + 1}">1</td>
+                                        <td class="text-start fw-bold" th:text="${p.fullName}">Passenger Name</td>
+                                        <td th:text="${p.age} + ' / ' + ${p.gender}">28 / MALE</td>
+                                        <td>
+                                            <span th:if="${booking.bookingStatus.name() == 'CONFIRMED'}" class="badge bg-success-subtle text-success fw-bold">
+                                                CNF
+                                            </span>
+                                            <span th:if="${booking.bookingStatus.name() == 'CANCELLED'}" class="badge bg-danger-subtle text-danger fw-bold">
+                                                CAN
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <strong class="text-primary fs-6" th:text="${p.seatNumber != null ? p.seatNumber : 'CNF'}">C1-14</strong>
+                                        </td>
+                                        <td class="text-muted fw-semibold" th:text="${p.allocatedBerth != null ? p.allocatedBerth : 'Confirmed'}">Window</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Cancellation Details (if cancelled) -->
+                        <div th:if="${booking.bookingStatus.name() == 'CANCELLED' and booking.cancellation != null}" class="p-3 rounded-3 bg-danger bg-opacity-10 border border-danger mb-4">
+                            <h6 class="fw-bold text-danger mb-1">
+                                <i class="bi bi-info-circle-fill me-1"></i> Cancellation & Refund Summary
+                            </h6>
+                            <div class="small text-muted">
+                                Cancelled on: <strong th:text="${#temporals.format(booking.cancellation.cancellationDate, 'dd-MMM-yyyy HH:mm')}">DATE</strong> |
+                                Simulated Refund: <strong class="text-success" th:text="'₹ ' + ${booking.cancellation.refundAmount}">₹ 932.00</strong> |
+                                Deduction: <strong th:text="'₹ ' + ${booking.cancellation.cancellationCharge}">₹ 233.00</strong> |
+                                Refund Status: <span class="badge bg-secondary" th:text="${booking.cancellation.refundStatus}">PROCESSED</span>
+                            </div>
+                        </div>
+
+                        <!-- Total Fare -->
+                        <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                            <span class="text-muted">Total Reservation Amount</span>
+                            <span class="fs-4 fw-bold text-primary" th:text="'₹ ' + ${booking.totalFare}">₹ 1,165.00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{layout/footer :: footer}"></footer>
+
+</body>
+</html>

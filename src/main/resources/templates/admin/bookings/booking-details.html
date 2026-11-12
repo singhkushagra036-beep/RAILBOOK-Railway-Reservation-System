@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/header :: head('Reservation Inspection - PNR ' + ${booking.pnrNumber})}"></head>
+<body class="bg-light">
+
+<nav th:replace="~{layout/header :: navbar}"></nav>
+
+<main class="py-5">
+    <div class="container">
+        <!-- Back Button -->
+        <div class="mb-3">
+            <a th:href="@{/admin/bookings}" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left me-1"></i> Back to All Bookings
+            </a>
+        </div>
+
+        <div class="card shadow-sm border-0 rounded-4 p-4 p-md-5 bg-white max-w-900 mx-auto" style="max-width: 900px;">
+            <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+                <div>
+                    <span class="small text-muted fw-bold text-uppercase">RESERVATION AUDIT RECORD</span>
+                    <h3 class="fw-bold mb-0 text-primary">PNR: <span th:text="${booking.pnrNumber}">4829104821</span></h3>
+                </div>
+                <div>
+                    <span th:if="${booking.bookingStatus.name() == 'CONFIRMED'}" class="badge bg-success fs-6 px-3 py-2">
+                        CONFIRMED
+                    </span>
+                    <span th:if="${booking.bookingStatus.name() == 'CANCELLED'}" class="badge bg-danger fs-6 px-3 py-2">
+                        CANCELLED
+                    </span>
+                </div>
+            </div>
+
+            <!-- Booking & Train Info -->
+            <div class="row g-4 mb-4">
+                <div class="col-md-6">
+                    <h6 class="fw-bold text-dark text-uppercase small">Passenger Account</h6>
+                    <div class="p-3 bg-light rounded-3">
+                        <div class="fw-bold" th:text="${booking.user.fullName}">User Full Name</div>
+                        <div class="small text-muted" th:text="${booking.user.email}">user@railbook.com</div>
+                        <div class="small text-muted" th:text="'Phone: ' + (${booking.user.phone != null ? booking.user.phone : 'Not provided'})">Phone</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <h6 class="fw-bold text-dark text-uppercase small">Train & Class Particulars</h6>
+                    <div class="p-3 bg-light rounded-3">
+                        <div class="fw-bold" th:text="${booking.train.trainNumber} + ' - ' + ${booking.train.trainName}">Train</div>
+                        <div class="small text-muted">
+                            <span th:text="${booking.train.sourceStation.formattedDisplay}">Origin</span> →
+                            <span th:text="${booking.train.destinationStation.formattedDisplay}">Destination</span>
+                        </div>
+                        <div class="small text-primary fw-bold" th:text="${booking.travelClass.displayName}">Class</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Passenger Table -->
+            <h6 class="fw-bold text-dark text-uppercase small mb-3">Passenger Allocation Roster</h6>
+            <div class="table-responsive mb-4">
+                <table class="table table-bordered align-middle text-center small">
+                    <thead class="table-light">
+                        <tr>
+                            <th>#</th>
+                            <th class="text-start">Name</th>
+                            <th>Age</th>
+                            <th>Gender</th>
+                            <th>Seat Number</th>
+                            <th>Berth Allocated</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="p, stat : ${booking.passengers}">
+                            <td th:text="${stat.index + 1}">1</td>
+                            <td class="text-start fw-bold" th:text="${p.fullName}">Name</td>
+                            <td th:text="${p.age}">Age</td>
+                            <td th:text="${p.gender}">MALE</td>
+                            <td><strong class="text-primary" th:text="${p.seatNumber}">B1-21</strong></td>
+                            <td th:text="${p.allocatedBerth}">Lower</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Payment Audit Block -->
+            <div class="p-3 rounded-3 bg-light border mb-4">
+                <h6 class="fw-bold text-dark mb-2">Simulated Financial Audit</h6>
+                <div class="row g-2 small">
+                    <div class="col-md-3">Total Fare: <strong class="text-success" th:text="'₹ ' + ${booking.totalFare}">₹ 1,165</strong></div>
+                    <div class="col-md-3">Mode: <span class="badge bg-secondary" th:text="${booking.payment != null ? booking.payment.paymentMode : 'UPI'}">UPI</span></div>
+                    <div class="col-md-3">Transaction ID: <span class="font-monospace" th:text="${booking.payment != null ? booking.payment.transactionId : 'TXN-1234'}">TXN</span></div>
+                    <div class="col-md-3">Status: <span class="badge bg-success" th:text="${booking.payment != null ? booking.payment.paymentStatus : 'SUCCESS'}">SUCCESS</span></div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2">
+                <a th:href="@{/ticket/{pnr}(pnr=${booking.pnrNumber})}" class="btn btn-primary btn-sm fw-bold">
+                    <i class="bi bi-printer me-1"></i> View Ticket ERS
+                </a>
+                <a th:href="@{/ticket/{pnr}/pdf(pnr=${booking.pnrNumber})}" class="btn btn-outline-danger btn-sm fw-bold">
+                    <i class="bi bi-file-pdf me-1"></i> Download PDF
+                </a>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{layout/footer :: footer}"></footer>
+
+</body>
+</html>

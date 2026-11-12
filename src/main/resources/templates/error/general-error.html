@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/header :: head('Reservation Notice')}"></head>
+<body class="bg-light">
+
+<nav th:replace="~{layout/header :: navbar}"></nav>
+
+<main class="py-5">
+    <div class="container text-center py-5">
+        <div class="mb-4">
+            <i class="bi bi-info-circle text-primary display-1"></i>
+        </div>
+        <h2 class="fw-bold text-dark" th:text="${errorTitle != null ? errorTitle : 'Reservation Notice'}">Notice</h2>
+        <div class="alert alert-warning max-w-600 mx-auto my-4 text-start p-4 rounded-3 border">
+            <div class="d-flex align-items-center mb-2">
+                <i class="bi bi-exclamation-triangle-fill fs-4 text-warning me-2"></i>
+                <h5 class="fw-bold mb-0 text-dark">Important Information</h5>
+            </div>
+            <p class="mb-0 text-dark" th:text="${errorMessage}">Error description</p>
+        </div>
+        <div class="d-flex justify-content-center gap-3">
+            <a href="javascript:history.back()" class="btn btn-outline-secondary px-4 fw-semibold">
+                <i class="bi bi-arrow-left me-1"></i> Go Back
+            </a>
+            <a th:href="@{/search}" class="btn btn-primary px-4 fw-bold" style="background-color: #0077B6;">
+                <i class="bi bi-search me-1"></i> Search Trains
+            </a>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{layout/footer :: footer}"></footer>
+
+</body>
+</html>

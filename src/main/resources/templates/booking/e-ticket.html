@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/header :: head('Electronic Reservation Slip - PNR ' + ${booking.pnrNumber})}"></head>
+<body class="bg-light">
+
+<nav th:replace="~{layout/header :: navbar}"></nav>
+
+<main class="py-4">
+    <div class="container">
+        <!-- Action Toolbar (hidden during print) -->
+        <div class="d-flex justify-content-between align-items-center mb-3 no-print max-w-860 mx-auto" style="max-width: 860px;">
+            <a th:href="@{/my-bookings}" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left me-1"></i> Back to My Bookings
+            </a>
+            <div class="d-flex gap-2">
+                <button type="button" class="btn btn-primary btn-sm fw-bold" onclick="window.print()" style="background-color: #0077B6;">
+                    <i class="bi bi-printer-fill me-1"></i> Print Ticket
+                </button>
+                <a th:href="@{/ticket/{pnr}/pdf(pnr=${booking.pnrNumber})}" class="btn btn-danger btn-sm fw-bold">
+                    <i class="bi bi-file-earmark-pdf-fill me-1"></i> Download PDF
+                </a>
+            </div>
+        </div>
+
+        <!-- Official Railway E-Ticket Container -->
+        <div class="e-ticket-container">
+            <div class="e-ticket-watermark">RAILBOOK</div>
+
+            <!-- Ticket Header -->
+            <div class="e-ticket-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-train-front-fill fs-1 text-primary"></i>
+                    <div>
+                        <h3 class="fw-bold mb-0 text-primary" style="letter-spacing: -0.5px;">RAILBOOK</h3>
+                        <div class="small text-muted fw-semibold">ELECTRONIC RESERVATION SLIP (ERS) • VALID WITH ORIGINAL ID</div>
+                    </div>
+                </div>
+
+                <!-- Barcode visual simulation -->
+                <div class="text-end">
+                    <div style="font-family: monospace; letter-spacing: 4px; font-size: 1.25rem; font-weight: 900; color: #0B2545;">
+                        ||||| | |||| || ||| |||||
+                    </div>
+                    <div class="small text-muted" th:text="'IR-ERS-' + ${booking.pnrNumber}">IR-ERS-4920194820</div>
+                </div>
+            </div>
+
+            <!-- PNR & Status Banner -->
+            <div class="e-ticket-pnr-banner">
+                <div>
+                    <span class="small text-muted fw-bold text-uppercase">PNR NUMBER</span>
+                    <div class="pnr-display" th:text="${booking.pnrNumber}">4920194820</div>
+                </div>
+                <div>
+                    <span class="small text-muted fw-bold text-uppercase">BOOKING STATUS</span>
+                    <div>
+                        <span th:if="${booking.bookingStatus.name() == 'CONFIRMED'}" class="badge bg-success fs-6 px-3 py-1">
+                            CONFIRMED (CNF)
+                        </span>
+                        <span th:if="${booking.bookingStatus.name() == 'CANCELLED'}" class="badge bg-danger fs-6 px-3 py-1">
+                            CANCELLED
+                        </span>
+                    </div>
+                </div>
+                <div class="text-end">
+                    <span class="small text-muted fw-bold text-uppercase">BOOKING DATE</span>
+                    <div class="fw-bold text-dark" th:text="${#temporals.format(booking.bookingDate, 'dd-MMM-yyyy HH:mm')}">20-Nov-2026 14:30</div>
+                </div>
+            </div>
+
+            <!-- Cancellation Banner if cancelled -->
+            <div th:if="${booking.bookingStatus.name() == 'CANCELLED' and booking.cancellation != null}" class="alert alert-danger p-3 mb-4 rounded-3">
+                <div class="fw-bold mb-1">
+                    <i class="bi bi-exclamation-octagon-fill me-1"></i> TICKET CANCELLED ON <span th:text="${#temporals.format(booking.cancellation.cancellationDate, 'dd-MMM-yyyy HH:mm')}">DATE</span>
+                </div>
+                <div class="small">
+                    Simulated Refund Amount: <strong class="text-success" th:text="'₹ ' + ${booking.cancellation.refundAmount}">₹ 932.00</strong> |
+                    Cancellation Charges: <strong th:text="'₹ ' + ${booking.cancellation.cancellationCharge}">₹ 233.00</strong> |
+                    Status: <span class="badge bg-secondary" th:text="${booking.cancellation.refundStatus}">PROCESSED</span>
+                </div>
+            </div>
+
+            <!-- Train & Route Details -->
+            <div class="table-responsive mb-4">
+                <table class="table table-bordered ticket-table align-middle">
+                    <thead>
+                        <tr>
+                            <th colspan="4" class="text-center">TRAIN & JOURNEY PARTICULARS</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="bg-light fw-bold" style="width: 25%;">Train Number & Name</td>
+                            <td style="width: 25%;" th:text="${booking.train.trainNumber} + ' / ' + ${booking.train.trainName}">12004 / Shatabdi Express</td>
+                            <td class="bg-light fw-bold" style="width: 25%;">Class & Quota</td>
+                            <td style="width: 25%;" th:text="${booking.travelClass.displayName} + ' (GN)'">AC Chair Car (GN)</td>
+                        </tr>
+                        <tr>
+                            <td class="bg-light fw-bold">From (Boarding)</td>
+                            <td th:text="${booking.train.sourceStation.formattedDisplay}">New Delhi (NDLS)</td>
+                            <td class="bg-light fw-bold">To (Destination)</td>
+                            <td th:text="${booking.train.destinationStation.formattedDisplay}">Lucknow Charbagh (LKO)</td>
+                        </tr>
+                        <tr>
+                            <td class="bg-light fw-bold">Date of Journey</td>
+                            <td><strong class="text-primary" th:text="${#temporals.format(booking.journeyDate, 'dd-MMM-yyyy')}">20-Nov-2026</strong></td>
+                            <td class="bg-light fw-bold">Scheduled Departure</td>
+                            <td><strong th:text="${#temporals.format(booking.train.departureTime, 'HH:mm')} + ' hrs'">06:00 hrs</strong></td>
+                        </tr>
+                        <tr>
+                            <td class="bg-light fw-bold">Scheduled Arrival</td>
+                            <td><strong th:text="${#temporals.format(booking.train.arrivalTime, 'HH:mm')} + ' hrs'">12:30 hrs</strong></td>
+                            <td class="bg-light fw-bold">Journey Duration</td>
+                            <td th:text="${booking.train.durationHours}">06h 30m</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Passenger Details Table -->
+            <div class="table-responsive mb-4">
+                <table class="table table-bordered ticket-table align-middle text-center">
+                    <thead>
+                        <tr>
+                            <th style="width: 6%;">#</th>
+                            <th class="text-start" style="width: 34%;">Passenger Name</th>
+                            <th style="width: 10%;">Age</th>
+                            <th style="width: 12%;">Gender</th>
+                            <th style="width: 18%;">Coach & Seat No.</th>
+                            <th style="width: 20%;">Berth Type</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="p, stat : ${booking.passengers}">
+                            <td th:text="${stat.index + 1}">1</td>
+                            <td class="text-start fw-bold" th:text="${p.fullName}">Rahul Sharma</td>
+                            <td th:text="${p.age}">28</td>
+                            <td th:text="${p.gender}">MALE</td>
+                            <td>
+                                <span class="badge bg-primary fs-6" th:text="${p.seatNumber != null ? p.seatNumber : 'CNF'}">C1-14</span>
+                            </td>
+                            <td class="fw-semibold text-secondary" th:text="${p.allocatedBerth != null ? p.allocatedBerth : 'Confirmed'}">Window</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Fare & Payment Summary -->
+            <div class="table-responsive mb-4">
+                <table class="table table-bordered ticket-table align-middle">
+                    <thead>
+                        <tr>
+                            <th colspan="4" class="text-center">PAYMENT & TRANSACTION BREAKDOWN</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="bg-light fw-bold" style="width: 25%;">Ticket Fare</td>
+                            <td style="width: 25%;"><strong class="text-success fs-6" th:text="'₹ ' + ${booking.totalFare}">₹ 1,165.00</strong></td>
+                            <td class="bg-light fw-bold" style="width: 25%;">Payment Mode</td>
+                            <td style="width: 25%;" th:text="${booking.payment != null ? booking.payment.paymentMode.displayName : 'UPI'}">UPI</td>
+                        </tr>
+                        <tr>
+                            <td class="bg-light fw-bold">Transaction Reference</td>
+                            <td th:text="${booking.payment != null ? booking.payment.transactionId : 'TXN-SIMULATED'}">TXN-12345678</td>
+                            <td class="bg-light fw-bold">Payment Status</td>
+                            <td><span class="badge bg-success" th:text="${booking.payment != null ? booking.payment.paymentStatus.name() : 'SUCCESS'}">SUCCESS</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Important Instructions -->
+            <div class="border rounded p-3 bg-light" style="font-size: 0.78rem; line-height: 1.5; color: #475569;">
+                <div class="fw-bold text-dark text-uppercase mb-1">
+                    <i class="bi bi-info-circle me-1 text-primary"></i> General Passenger Guidelines & Verification Notice:
+                </div>
+                <ol class="mb-0 ps-3">
+                    <li>One of the passengers booked on an e-ticket is required to present any of the original Identity Cards (Aadhaar Card, Voter ID, Passport, Driving License, PAN Card) during the journey.</li>
+                    <li>This document is a computer-generated Electronic Reservation Slip (ERS) rendered by RailBook.</li>
+                    <li>All financial transactions and seat reservations are part of the RailBook educational and portfolio simulation system.</li>
+                    <li>For cancellation rules, refund calculation, or PNR tracking, please visit the RailBook portal.</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{layout/footer :: footer}"></footer>
+
+</body>
+</html>

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/header :: head('Train Schedule Details')}"></head>
+<body class="bg-light">
+
+<nav th:replace="~{layout/header :: navbar}"></nav>
+
+<main class="py-5">
+    <div class="container">
+        <!-- Back Button -->
+        <div class="mb-3">
+            <a href="javascript:history.back()" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left me-1"></i> Back
+            </a>
+        </div>
+
+        <!-- Train Overview Card -->
+        <div class="card shadow-sm border-0 rounded-4 overflow-hidden mb-4">
+            <div class="card-header bg-primary text-white p-4" style="background: linear-gradient(135deg, #0B2545 0%, #134074 100%) !important;">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <div>
+                        <span class="badge bg-info text-dark px-2 py-1 mb-2 fw-bold" th:text="${train.trainType}">Type</span>
+                        <h3 class="fw-bold mb-1" th:text="${train.trainNumber} + ' - ' + ${train.trainName}">12004 - Train Name</h3>
+                        <div class="text-white-50">
+                            Runs: <strong class="text-white" th:text="${train.runningDays}">MON..SUN</strong>
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <div class="fs-4 fw-bold text-white" th:text="${train.durationHours}">06h 30m</div>
+                        <div class="text-white-50 small">Total Journey Time</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body p-4">
+                <div class="row g-4 text-center">
+                    <div class="col-md-6 border-end">
+                        <div class="text-muted small text-uppercase fw-bold">Source Station</div>
+                        <h4 class="fw-bold text-primary mt-1" th:text="${train.sourceStation.stationName}">Origin</h4>
+                        <div class="badge bg-secondary" th:text="${train.sourceStation.stationCode}">NDLS</div>
+                        <div class="mt-2 text-dark fw-bold fs-5" th:text="${#temporals.format(train.departureTime, 'HH:mm')} + ' hrs'">06:00 hrs</div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="text-muted small text-uppercase fw-bold">Destination Station</div>
+                        <h4 class="fw-bold text-danger mt-1" th:text="${train.destinationStation.stationName}">Destination</h4>
+                        <div class="badge bg-secondary" th:text="${train.destinationStation.stationCode}">LKO</div>
+                        <div class="mt-2 text-dark fw-bold fs-5" th:text="${#temporals.format(train.arrivalTime, 'HH:mm')} + ' hrs'">12:30 hrs</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Class Configurations & Fares -->
+        <div class="card shadow-sm border-0 rounded-4 p-4 mb-4 bg-white">
+            <h5 class="fw-bold mb-3 text-dark">Configured Travel Classes & Fares</h5>
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Class Code</th>
+                            <th>Class Description</th>
+                            <th>Total Capacity</th>
+                            <th>Base Fare per Passenger</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="cfg : ${train.classConfigs}">
+                            <td><strong class="text-primary" th:text="${cfg.travelClass.code}">CC</strong></td>
+                            <td th:text="${cfg.travelClass.displayName}">AC Chair Car</td>
+                            <td th:text="${cfg.totalSeats} + ' Seats'">72 Seats</td>
+                            <td><strong class="text-success" th:text="'₹ ' + ${cfg.baseFare}">₹ 1,165.00</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Intermediate Stops / Schedule (if any) -->
+        <div class="card shadow-sm border-0 rounded-4 p-4 bg-white" th:if="${not #lists.isEmpty(train.schedules)}">
+            <h5 class="fw-bold mb-3 text-dark">Route Schedule & Halts</h5>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Stop #</th>
+                            <th>Station Name</th>
+                            <th>Code</th>
+                            <th>Arrival</th>
+                            <th>Departure</th>
+                            <th>Distance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="sch : ${train.schedules}">
+                            <td th:text="${sch.stopNumber}">1</td>
+                            <td th:text="${sch.station.stationName}">Station</td>
+                            <td><span class="badge bg-light text-dark border" th:text="${sch.station.stationCode}">CODE</span></td>
+                            <td th:text="${sch.arrivalTime != null ? #temporals.format(sch.arrivalTime, 'HH:mm') : 'Source'}">--</td>
+                            <td th:text="${sch.departureTime != null ? #temporals.format(sch.departureTime, 'HH:mm') : 'Destination'}">--</td>
+                            <td th:text="${sch.distanceKm} + ' km'">0 km</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{layout/footer :: footer}"></footer>
+
+</body>
+</html>

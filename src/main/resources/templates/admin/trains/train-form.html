@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/header :: head('Train Configuration Form')}"></head>
+<body class="bg-light">
+
+<nav th:replace="~{layout/header :: navbar}"></nav>
+
+<main class="py-5">
+    <div class="container">
+        <!-- Back Button -->
+        <div class="mb-3">
+            <a th:href="@{/admin/trains}" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left me-1"></i> Back to Train List
+            </a>
+        </div>
+
+        <div class="card shadow-sm border-0 rounded-4 p-4 p-md-5 bg-white max-w-900 mx-auto" style="max-width: 900px;">
+            <h4 class="fw-bold mb-1 text-dark" th:text="${trainDto.id != null ? 'Edit Train' : 'Add New Train'}">Train Form</h4>
+            <p class="text-muted small mb-4">Configure train details, operating days, and class-wise seat capacity & fares.</p>
+
+            <div th:if="${errorMessage}" class="alert alert-danger d-flex align-items-center mb-4 small" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+                <span th:text="${errorMessage}">Form error</span>
+            </div>
+
+            <form th:action="@{/admin/trains/save}" method="post" th:object="${trainDto}">
+                <input type="hidden" th:field="*{id}">
+
+                <!-- Train Basic Info -->
+                <h6 class="fw-bold text-primary text-uppercase mb-3">1. Train Overview</h6>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold">Train Number *</label>
+                        <input type="text" th:field="*{trainNumber}" class="form-control" placeholder="e.g. 12004" required>
+                        <div class="text-danger small mt-1" th:if="${#fields.hasErrors('trainNumber')}" th:errors="*{trainNumber}"></div>
+                    </div>
+                    <div class="col-md-5">
+                        <label class="form-label small fw-bold">Train Name *</label>
+                        <input type="text" th:field="*{trainName}" class="form-control" placeholder="e.g. Lucknow Swarna Shatabdi" required>
+                        <div class="text-danger small mt-1" th:if="${#fields.hasErrors('trainName')}" th:errors="*{trainName}"></div>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label small fw-bold">Train Type</label>
+                        <select th:field="*{trainType}" class="form-select">
+                            <option value="Vande Bharat Express">Vande Bharat Express</option>
+                            <option value="Rajdhani Express">Rajdhani Express</option>
+                            <option value="Shatabdi Express">Shatabdi Express</option>
+                            <option value="Duronto Express">Duronto Express</option>
+                            <option value="Superfast Express">Superfast Express</option>
+                            <option value="Express">Express</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Stations & Timing -->
+                <h6 class="fw-bold text-primary text-uppercase mb-3">2. Route & Timings</h6>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">Source Station *</label>
+                        <select th:field="*{sourceStationId}" class="form-select" required>
+                            <option value="">Select Origin...</option>
+                            <option th:each="st : ${stations}" th:value="${st.id}" th:text="${st.formattedDisplay}"></option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">Destination Station *</label>
+                        <select th:field="*{destinationStationId}" class="form-select" required>
+                            <option value="">Select Destination...</option>
+                            <option th:each="st : ${stations}" th:value="${st.id}" th:text="${st.formattedDisplay}"></option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold">Departure Time *</label>
+                        <input type="time" th:field="*{departureTime}" class="form-control" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold">Arrival Time *</label>
+                        <input type="time" th:field="*{arrivalTime}" class="form-control" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold">Duration (e.g. 06h 30m)</label>
+                        <input type="text" th:field="*{durationHours}" class="form-control" placeholder="06h 30m">
+                    </div>
+
+                    <div class="col-md-8">
+                        <label class="form-label small fw-bold">Running Days (Comma separated)</label>
+                        <input type="text" th:field="*{runningDays}" class="form-control" placeholder="MON,TUE,WED,THU,FRI,SAT,SUN">
+                    </div>
+                    <div class="col-md-4 d-flex align-items-center mt-md-4">
+                        <div class="form-check form-switch mt-2">
+                            <input class="form-check-input" type="checkbox" th:field="*{active}" id="activeSwitch">
+                            <label class="form-check-label fw-bold small" for="activeSwitch">Train Active in Search</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Class Configs, Capacity & Fares -->
+                <h6 class="fw-bold text-primary text-uppercase mb-3">3. Travel Classes, Seat Capacities & Fares</h6>
+                <div class="table-responsive mb-4">
+                    <table class="table table-bordered align-middle small">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 15%;">Enable</th>
+                                <th style="width: 25%;">Travel Class</th>
+                                <th style="width: 30%;">Seat Capacity</th>
+                                <th style="width: 30%;">Base Ticket Fare (₹)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="item, stat : *{classConfigs}">
+                                <td>
+                                    <input type="hidden" th:field="*{classConfigs[__${stat.index}__].travelClass}">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox"
+                                               th:field="*{classConfigs[__${stat.index}__].enabled}"
+                                               th:id="'class-chk-' + ${stat.index}">
+                                        <label class="form-check-label" th:for="'class-chk-' + ${stat.index}">Enable</label>
+                                    </div>
+                                </td>
+                                <td>
+                                    <strong class="text-primary" th:text="${item.travelClass.code}">CC</strong>
+                                    <span class="text-muted small" th:text="' - ' + ${item.travelClass.displayName}"></span>
+                                </td>
+                                <td>
+                                    <input type="number" min="0" max="500" class="form-control form-control-sm"
+                                           th:field="*{classConfigs[__${stat.index}__].totalSeats}" placeholder="Seats (e.g. 72)">
+                                </td>
+                                <td>
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-text">₹</span>
+                                        <input type="number" step="0.01" min="0" class="form-control"
+                                               th:field="*{classConfigs[__${stat.index}__].baseFare}" placeholder="Fare (e.g. 1165.00)">
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                    <a th:href="@{/admin/trains}" class="btn btn-secondary btn-sm px-4">Cancel</a>
+                    <button type="submit" class="btn btn-primary btn-sm px-4 fw-bold" style="background-color: #0077B6;">
+                        <i class="bi bi-save me-1"></i> Save Train
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{layout/footer :: footer}"></footer>
+
+</body>
+</html>

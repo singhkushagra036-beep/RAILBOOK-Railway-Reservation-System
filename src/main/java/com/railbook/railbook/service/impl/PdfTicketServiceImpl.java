@@ -9,6 +9,7 @@ import com.railbook.railbook.model.Booking;
 import com.railbook.railbook.model.BookingStatus;
 import com.railbook.railbook.model.Passenger;
 import com.railbook.railbook.service.PdfTicketService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.awt.Color;
@@ -21,6 +22,9 @@ public class PdfTicketServiceImpl implements PdfTicketService {
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd-MMM-yyyy");
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
     private static final DateTimeFormatter DATETIME_FORMATTER = DateTimeFormatter.ofPattern("dd-MMM-yyyy HH:mm");
+
+    @Value("${railbook.app.url:https://railbook.vercel.app}")
+    private String appUrl;
 
     @Override
     public byte[] generateTicketPdf(Booking booking) {
@@ -157,7 +161,7 @@ public class PdfTicketServiceImpl implements PdfTicketService {
                     "1. This is a computer-generated demonstration reservation slip issued by RailBook.\n" +
                     "2. One of the passengers booked on an e-ticket is required to present valid original Government Photo ID proof.\n" +
                     "3. All payments and refunds demonstrated in this system are simulated for academic/demonstration purposes.\n" +
-                    "4. For cancellation rules and PNR queries, visit RailBook web portal at http://localhost:8080/pnr.",
+                    "4. For cancellation rules and PNR queries, visit RailBook web portal at " + appUrl + "/pnr.",
                     disclaimerFont
             );
             document.add(instructions);

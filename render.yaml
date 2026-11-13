@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: railbook-backend
+    env: docker
+    dockerfilePath: Dockerfile
+    plan: free
+    region: oregon
+    branch: main
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: SPRING_JPA_HIBERNATE_DDL_AUTO
+        value: update
+      - key: DEMO_DATA_ENABLED
+        value: "false"
+      - key: APP_URL
+        value: https://railbook-railway-reservation-system.vercel.app
+      - key: DB_URL
+        sync: false
+      - key: DB_USERNAME
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_DRIVER
+        value: org.mariadb.jdbc.Driver

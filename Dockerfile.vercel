@@ -25,9 +25,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf 
 # Copy built JAR from builder
 COPY --from=builder /workspace/target/*.jar app.jar
 
-# Dynamic port binding: Vercel containers route to port 80 by default or inject $PORT
-EXPOSE 80 8080
-ENV PORT=80
+# Dynamic port binding: Render routes to 10000, Vercel routes to 80/8080, injects $PORT
+EXPOSE 80 8080 10000
+ENV PORT=8080
 ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0"
 
 # Healthcheck probe

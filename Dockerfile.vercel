@@ -19,6 +19,9 @@ RUN ./mvnw clean package -DskipTests
 FROM eclipse-temurin:21-jre AS runtime
 WORKDIR /app
 
+# Install curl for container health check probes
+RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
+
 # Copy built JAR from builder
 COPY --from=builder /workspace/target/*.jar app.jar
 
